@@ -1,0 +1,23 @@
+{
+  "name": "swordjs",
+  "version": "2.0.0",
+  "description": "A platform-independent web framework, based on WasmEdge, that can use TS/JS and even Rust to write business logic! Made for microservices and Serverless",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swordjs/swordjs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/swordjs/swordjs/issues"
+  },
+  "homepage": "https://github.com/swordjs/swordjs#readme"
+}
