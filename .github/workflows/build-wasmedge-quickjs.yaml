@@ -1,0 +1,30 @@
+name: build-wasmedge-quickjs
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'packages/wasmedge-quickjs/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Grant execute permission to build script
+        run: chmod +x packages/wasmedge-quickjs/scripts/build-wasmedge-quickjs.sh
+
+      - name: Execute build script with --publish flag
+        run: packages/wasmedge-quickjs/scripts/build-wasmedge-quickjs.sh --publish
