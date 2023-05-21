@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'packages/wasmedge-quickjs/**'
+
   pull_request:
     branches:
       - main
@@ -15,6 +18,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set up Ubuntu
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential
+          rustup target add wasm32-wasi
+
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -23,8 +32,11 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Change directory to wasmedge-quickjs
+        run: cd packages/wasmedge-quickjs
+
       - name: Grant execute permission to build script
-        run: chmod +x packages/wasmedge-quickjs/scripts/build-wasmedge-quickjs.sh
+        run: chmod +x scripts/build-wasmedge-quickjs.sh
 
       - name: Execute build script with --publish flag
-        run: packages/wasmedge-quickjs/scripts/build-wasmedge-quickjs.sh --publish
+        run: scripts/build-wasmedge-quickjs.sh --publish
