@@ -1,14 +1,13 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import common from '../common';
+import assert from 'node:assert'
+
+import { spawnSync } from 'node:child_process'
+import common from '../common'
 
 if (common.isWindows || common.isAIX)
-  common.skip(`No /dev/stdin on ${process.platform}.`);
-
-import assert from 'assert';
-
-import { spawnSync } from 'child_process';
+  common.skip(`No /dev/stdin on ${process.platform}.`)
 
 for (const code of [
   `require('fs').realpath('/dev/stdin', (err, resolvedPath) => {
@@ -30,11 +29,11 @@ for (const code of [
   }`,
 ]) {
   const child = spawnSync(process.execPath, ['-e', code], {
-    stdio: 'pipe'
-  });
+    stdio: 'pipe',
+  })
   if (child.status !== 2) {
-    console.log(code);
-    console.log(child.stderr.toString());
+    console.log(code)
+    console.log(child.stderr.toString())
   }
-  assert.strictEqual(child.status, 2);
+  assert.strictEqual(child.status, 2)
 }

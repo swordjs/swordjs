@@ -19,66 +19,65 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import assert from 'assert';
-import fs from 'fs';
-import { URL } from "url";
+'use strict'
+import assert from 'node:assert'
+import fs from 'node:fs'
+import common from '../common'
 
 function check(async, sync) {
-  const argsSync = Array.prototype.slice.call(arguments, 2);
-  const argsAsync = argsSync.concat(common.mustNotCall());
+  const argsSync = Array.prototype.slice.call(arguments, 2)
+  const argsAsync = argsSync.concat(common.mustNotCall())
 
   if (sync) {
     assert.throws(
       () => {
-        sync.apply(null, argsSync);
+        sync.apply(null, argsSync)
       },
       {
         code: 'ERR_INVALID_ARG_VALUE',
         name: 'TypeError',
-      });
+      })
   }
 
   if (async) {
     assert.throws(
       () => {
-        async.apply(null, argsAsync);
+        async.apply(null, argsAsync)
       },
       {
         code: 'ERR_INVALID_ARG_VALUE',
-        name: 'TypeError'
-      });
+        name: 'TypeError',
+      })
   }
 }
 
-check(fs.access, fs.accessSync, 'foo\u0000bar');
-check(fs.access, fs.accessSync, 'foo\u0000bar', fs.F_OK);
-check(fs.appendFile, fs.appendFileSync, 'foo\u0000bar', 'abc');
+check(fs.access, fs.accessSync, 'foo\u0000bar')
+check(fs.access, fs.accessSync, 'foo\u0000bar', fs.F_OK)
+check(fs.appendFile, fs.appendFileSync, 'foo\u0000bar', 'abc')
 // check(fs.chmod, fs.chmodSync, 'foo\u0000bar', '0644');
 // check(fs.chown, fs.chownSync, 'foo\u0000bar', 12, 34);
-check(fs.copyFile, fs.copyFileSync, 'foo\u0000bar', 'abc');
-check(fs.copyFile, fs.copyFileSync, 'abc', 'foo\u0000bar');
+check(fs.copyFile, fs.copyFileSync, 'foo\u0000bar', 'abc')
+check(fs.copyFile, fs.copyFileSync, 'abc', 'foo\u0000bar')
 // check(fs.lchown, fs.lchownSync, 'foo\u0000bar', 12, 34);
-check(fs.link, fs.linkSync, 'foo\u0000bar', 'foobar');
-check(fs.link, fs.linkSync, 'foobar', 'foo\u0000bar');
-check(fs.lstat, fs.lstatSync, 'foo\u0000bar');
-check(fs.mkdir, fs.mkdirSync, 'foo\u0000bar', '0755');
-check(fs.open, fs.openSync, 'foo\u0000bar', 'r');
-check(fs.readFile, fs.readFileSync, 'foo\u0000bar');
-check(fs.readdir, fs.readdirSync, 'foo\u0000bar');
-check(fs.readlink, fs.readlinkSync, 'foo\u0000bar');
-check(fs.realpath, fs.realpathSync, 'foo\u0000bar');
-check(fs.rename, fs.renameSync, 'foo\u0000bar', 'foobar');
-check(fs.rename, fs.renameSync, 'foobar', 'foo\u0000bar');
-check(fs.rmdir, fs.rmdirSync, 'foo\u0000bar');
-check(fs.stat, fs.statSync, 'foo\u0000bar');
-check(fs.symlink, fs.symlinkSync, 'foo\u0000bar', 'foobar');
-check(fs.symlink, fs.symlinkSync, 'foobar', 'foo\u0000bar');
-check(fs.truncate, fs.truncateSync, 'foo\u0000bar');
-check(fs.unlink, fs.unlinkSync, 'foo\u0000bar');
+check(fs.link, fs.linkSync, 'foo\u0000bar', 'foobar')
+check(fs.link, fs.linkSync, 'foobar', 'foo\u0000bar')
+check(fs.lstat, fs.lstatSync, 'foo\u0000bar')
+check(fs.mkdir, fs.mkdirSync, 'foo\u0000bar', '0755')
+check(fs.open, fs.openSync, 'foo\u0000bar', 'r')
+check(fs.readFile, fs.readFileSync, 'foo\u0000bar')
+check(fs.readdir, fs.readdirSync, 'foo\u0000bar')
+check(fs.readlink, fs.readlinkSync, 'foo\u0000bar')
+check(fs.realpath, fs.realpathSync, 'foo\u0000bar')
+check(fs.rename, fs.renameSync, 'foo\u0000bar', 'foobar')
+check(fs.rename, fs.renameSync, 'foobar', 'foo\u0000bar')
+check(fs.rmdir, fs.rmdirSync, 'foo\u0000bar')
+check(fs.stat, fs.statSync, 'foo\u0000bar')
+check(fs.symlink, fs.symlinkSync, 'foo\u0000bar', 'foobar')
+check(fs.symlink, fs.symlinkSync, 'foobar', 'foo\u0000bar')
+check(fs.truncate, fs.truncateSync, 'foo\u0000bar')
+check(fs.unlink, fs.unlinkSync, 'foo\u0000bar')
 // check(null, fs.unwatchFile, 'foo\u0000bar', common.mustNotCall());
-check(fs.utimes, fs.utimesSync, 'foo\u0000bar', 0, 0);
+check(fs.utimes, fs.utimesSync, 'foo\u0000bar', 0, 0)
 // check(null, fs.watch, 'foo\u0000bar', common.mustNotCall());
 // check(null, fs.watchFile, 'foo\u0000bar', common.mustNotCall());
 // check(fs.writeFile, fs.writeFileSync, 'foo\u0000bar', 'abc');
@@ -154,6 +153,6 @@ check(fs.utimes, fs.utimesSync, fileUrl2, 0, 0);
 // An 'error' for exists means that it doesn't exist.
 // One of many reasons why this file is the absolute worst.
 fs.exists('foo\u0000bar', common.mustCall((exists) => {
-  assert(!exists);
-}));
-assert(!fs.existsSync('foo\u0000bar'));
+  assert(!exists)
+}))
+assert(!fs.existsSync('foo\u0000bar'))

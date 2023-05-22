@@ -19,41 +19,41 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
+'use strict'
+
+import assert from 'node:assert'
+import fs from 'node:fs'
+
+import { exec } from 'node:child_process'
+import fixtures from '../common/fixtures'
+
+import common from '../common'
 
 // Simulate `cat readfile.js | node readfile.js`
 
 if (common.isWindows || common.isAIX)
-  common.skip(`No /dev/stdin on ${process.platform}.`);
-
-import assert from 'assert';
-import fs from 'fs';
+  common.skip(`No /dev/stdin on ${process.platform}.`)
 
 if (process.argv[2] === 'child') {
   fs.readFile('/dev/stdin', common.mustSucceed((data) => {
-    process.stdout.write(data);
-  }));
-  return;
+    process.stdout.write(data)
+  }))
+  return
 }
 
-import fixtures from '../common/fixtures';
-
-const filename = fixtures.path('readfile_pipe_test.txt');
-const dataExpected = fs.readFileSync(filename).toString();
-
-import { exec } from 'child_process';
-const f = JSON.stringify(__filename);
-const node = JSON.stringify(process.execPath);
-const cmd = `cat ${filename} | ${node} ${f} child`;
+const filename = fixtures.path('readfile_pipe_test.txt')
+const dataExpected = fs.readFileSync(filename).toString()
+const f = JSON.stringify(__filename)
+const node = JSON.stringify(process.execPath)
+const cmd = `cat ${filename} | ${node} ${f} child`
 exec(cmd, common.mustSucceed((stdout, stderr) => {
   assert.strictEqual(
     stdout,
     dataExpected,
-    `expected to read: '${dataExpected}' but got: '${stdout}'`);
+    `expected to read: '${dataExpected}' but got: '${stdout}'`)
   assert.strictEqual(
     stderr,
     '',
-    `expected not to read anything from stderr but got: '${stderr}'`);
-  console.log('ok');
-}));
+    `expected not to read anything from stderr but got: '${stderr}'`)
+  console.log('ok')
+}))

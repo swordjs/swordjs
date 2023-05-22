@@ -1,27 +1,27 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import common from '../common';
-import fixtures from '../common/fixtures';
-import assert from 'assert';
+import assert from 'node:assert'
 // import child from 'child_process';
-import path from 'path';
-import process from 'process';
+import path from 'node:path'
+import process from 'node:process'
+import fixtures from '../common/fixtures'
+import common from '../common'
 
-const failures = [];
-const slashRE = /\//g;
-const backslashRE = /\\/g;
+const failures = []
+const slashRE = /\//g
+const backslashRE = /\\/g
 
-const posixyCwd = common.isWindows ?
-  (() => {
-    const _ = process.cwd()
-      .replaceAll(path.sep, path.posix.sep);
-    return _.slice(_.indexOf(path.posix.sep));
-  })() :
-  "."; //process.cwd();
+const posixyCwd = common.isWindows
+  ? (() => {
+      const _ = process.cwd()
+        .replaceAll(path.sep, path.posix.sep)
+      return _.slice(_.indexOf(path.posix.sep))
+    })()
+  : '.' // process.cwd();
 
 const resolveTests = [
-  /*[ path.win32.resolve,
+  /* [ path.win32.resolve,
     // Arguments                               result
     [[['c:/blah\\blah', 'd:/games', 'c:../a'], 'c:\\blah\\a'],
      [['c:/ignore', 'd:\\a/b\\c/d', '\\e.exe'], 'd:\\e.exe'],
@@ -37,53 +37,53 @@ const resolveTests = [
      [['C:\\foo\\tmp.3\\', '..\\tmp.3\\cycles\\root.js'],
       'C:\\foo\\tmp.3\\cycles\\root.js'],
     ],
-  ],*/
-  [ path.posix.resolve,
+  ], */
+  [path.posix.resolve,
     // Arguments                    result
     [[['/var/lib', '../', 'file/'], '/var/file'],
-     [['/var/lib', '/../', 'file/'], '/file'],
-     [['a/b/c/', '../../..'], posixyCwd],
-     [['.'], posixyCwd],
-     [['/some/dir', '.', '/absolute/'], '/absolute'],
-     [['/foo/tmp.3/', '../tmp.3/cycles/root.js'], '/foo/tmp.3/cycles/root.js'],
+      [['/var/lib', '/../', 'file/'], '/file'],
+      [['a/b/c/', '../../..'], posixyCwd],
+      [['.'], posixyCwd],
+      [['/some/dir', '.', '/absolute/'], '/absolute'],
+      [['/foo/tmp.3/', '../tmp.3/cycles/root.js'], '/foo/tmp.3/cycles/root.js'],
     ],
   ],
-];
+]
 resolveTests.forEach(([resolve, tests]) => {
   tests.forEach(([test, expected]) => {
-    const actual = resolve.apply(null, test);
-    let actualAlt;
-    const os = /*resolve === path.win32.resolve ? 'win32' : */'posix';
-    if (false /*resolve === path.win32.resolve*/ && !common.isWindows)
-      actualAlt = actual.replace(backslashRE, '/');
-    else if (true /*resolve !== path.win32.resolve*/ && common.isWindows)
-      actualAlt = actual.replace(slashRE, '\\');
+    const actual = resolve.apply(null, test)
+    let actualAlt
+    const os = /* resolve === path.win32.resolve ? 'win32' : */'posix'
+    if (false /* resolve === path.win32.resolve */ && !common.isWindows)
+      actualAlt = actual.replace(backslashRE, '/')
+    else if (true /* resolve !== path.win32.resolve */ && common.isWindows)
+      actualAlt = actual.replace(slashRE, '\\')
 
-    const message =
-      `path.${os}.resolve(${test.map(JSON.stringify).join(',')})\n  expect=${
-        JSON.stringify(expected)}\n  actual=${JSON.stringify(actual)}`;
+    const message
+      = `path.${os}.resolve(${test.map(JSON.stringify).join(',')})\n  expect=${
+        JSON.stringify(expected)}\n  actual=${JSON.stringify(actual)}`
     if (actual !== expected && actualAlt !== expected)
-      failures.push(message);
-  });
-});
-assert.strictEqual(failures.length, 0, failures.join('\n'));
+      failures.push(message)
+  })
+})
+assert.strictEqual(failures.length, 0, failures.join('\n'))
 
 if (common.isWindows) {
   // Test resolving the current Windows drive letter from a spawned process.
   // See https://github.com/nodejs/node/issues/7215
-  const currentDriveLetter = path.parse(process.cwd()).root.substring(0, 2);
-  const resolveFixture = fixtures.path('path-resolve.js');
+  const currentDriveLetter = path.parse(process.cwd()).root.substring(0, 2)
+  const resolveFixture = fixtures.path('path-resolve.js')
   const spawnResult = child.spawnSync(
-    process.argv[0], [resolveFixture, currentDriveLetter]);
-  const resolvedPath = spawnResult.stdout.toString().trim();
-  assert.strictEqual(resolvedPath.toLowerCase(), process.cwd().toLowerCase());
+    process.argv[0], [resolveFixture, currentDriveLetter])
+  const resolvedPath = spawnResult.stdout.toString().trim()
+  assert.strictEqual(resolvedPath.toLowerCase(), process.cwd().toLowerCase())
 }
 
 if (!common.isWindows) {
   // Test handling relative paths to be safe when process.cwd() fails.
-  process.cwd = () => '';
-  assert.strictEqual(process.cwd(), '');
-  const resolved = path.resolve();
-  const expected = '.';
-  assert.strictEqual(resolved, expected);
+  process.cwd = () => ''
+  assert.strictEqual(process.cwd(), '')
+  const resolved = path.resolve()
+  const expected = '.'
+  assert.strictEqual(resolved, expected)
 }

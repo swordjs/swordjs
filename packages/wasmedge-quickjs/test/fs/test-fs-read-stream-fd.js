@@ -19,28 +19,29 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import fs from 'fs';
-import assert from 'assert';
-import path from 'path';
-import tmpdir from '../common/tmpdir';
-const file = path.join(tmpdir.path, '/read_stream_fd_test.txt');
-const input = 'hello world';
+'use strict'
+import fs from 'node:fs'
+import assert from 'node:assert'
+import path from 'node:path'
+import common from '../common'
+import tmpdir from '../common/tmpdir'
 
-let output = '';
-tmpdir.refresh();
-fs.writeFileSync(file, input);
+const file = path.join(tmpdir.path, '/read_stream_fd_test.txt')
+const input = 'hello world'
 
-const fd = fs.openSync(file, 'r');
-const stream = fs.createReadStream(null, { fd: fd, encoding: 'utf8' });
+let output = ''
+tmpdir.refresh()
+fs.writeFileSync(file, input)
 
-assert.strictEqual(stream.path, undefined);
+const fd = fs.openSync(file, 'r')
+const stream = fs.createReadStream(null, { fd, encoding: 'utf8' })
+
+assert.strictEqual(stream.path, undefined)
 
 stream.on('data', common.mustCallAtLeast((data) => {
-  output += data;
-}));
+  output += data
+}))
 
 process.on('exit', () => {
-  assert.strictEqual(output, input);
-});
+  assert.strictEqual(output, input)
+})

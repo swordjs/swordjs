@@ -1,30 +1,30 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
-import common from '../common';
-import tmpdir from '../common/tmpdir';
-import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
+'use strict'
+import assert from 'node:assert'
+import fs from 'node:fs'
+import path from 'node:path'
+import tmpdir from '../common/tmpdir'
+import common from '../common'
 
-tmpdir.refresh();
+tmpdir.refresh()
 
-const code = common.isWindows ? 'ENOENT' : 'ENOTDIR';
+const code = common.isWindows ? 'ENOENT' : 'ENOTDIR'
 
 {
-  const filePath = path.join(tmpdir.path, 'rmdir-recursive.txt');
-  fs.writeFileSync(filePath, '');
-  assert.throws(() => fs.rmdirSync(filePath, { recursive: true }), { code });
+  const filePath = path.join(tmpdir.path, 'rmdir-recursive.txt')
+  fs.writeFileSync(filePath, '')
+  assert.throws(() => fs.rmdirSync(filePath, { recursive: true }), { code })
 }
 {
-  const filePath = path.join(tmpdir.path, 'rmdir-recursive.txt');
-  fs.writeFileSync(filePath, '');
+  const filePath = path.join(tmpdir.path, 'rmdir-recursive.txt')
+  fs.writeFileSync(filePath, '')
   fs.rmdir(filePath, { recursive: true }, common.mustCall((err) => {
-    assert.strictEqual(err.code, code);
-  }));
+    assert.strictEqual(err.code, code)
+  }))
 }
 {
-  const filePath = path.join(tmpdir.path, 'rmdir-recursive.txt');
-  fs.writeFileSync(filePath, '');
+  const filePath = path.join(tmpdir.path, 'rmdir-recursive.txt')
+  fs.writeFileSync(filePath, '')
   assert.rejects(() => fs.promises.rmdir(filePath, { recursive: true }),
-                 { code }).then(common.mustCall());
+    { code }).then(common.mustCall())
 }

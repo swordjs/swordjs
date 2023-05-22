@@ -1,218 +1,221 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import common from '../common';
-import assert from 'assert';
-import fs from 'fs';
-import promiseFs from 'fs/promises';
-import path from 'path';
-import tmpdir from '../common/tmpdir';
-import { isDate } from 'internal/util/types';
-import { inspect } from 'internal/util/inspect';
+import assert from 'node:assert'
+import fs from 'node:fs'
+import promiseFs from 'node:fs/promises'
+import path from 'node:path'
+import process from 'node:process'
+import { isDate } from 'internal/util/types'
+import { inspect } from 'internal/util/inspect'
+import tmpdir from '../common/tmpdir'
 
-import process from "process";
+import common from '../common'
 
-tmpdir.refresh();
+tmpdir.refresh()
 
-let testIndex = 0;
+let testIndex = 0
 
 function getFilename() {
-  const filename = path.join(tmpdir.path, `test-file-${++testIndex}`);
-  fs.writeFileSync(filename, 'test');
-  return filename;
+  const filename = path.join(tmpdir.path, `test-file-${++testIndex}`)
+  fs.writeFileSync(filename, 'test')
+  return filename
 }
 
 function verifyStats(bigintStats, numStats, allowableDelta) {
   // allowableDelta: It's possible that the file stats are updated between the
   // two stat() calls so allow for a small difference.
   for (const key of Object.keys(numStats)) {
-    const val = numStats[key];
+    const val = numStats[key]
     if (isDate(val)) {
-      const time = val.getTime();
-      const time2 = bigintStats[key].getTime();
+      const time = val.getTime()
+      const time2 = bigintStats[key].getTime()
       assert(
         time - time2 <= allowableDelta,
-        `difference of ${key}.getTime() should <= ${allowableDelta}.\n` +
-        `Number version ${time}, BigInt version ${time2}n`);
-    } else if (key === 'mode') {
-      assert.strictEqual(bigintStats[key], BigInt(val));
+        `difference of ${key}.getTime() should <= ${allowableDelta}.\n`
+        + `Number version ${time}, BigInt version ${time2}n`)
+    }
+    else if (key === 'mode') {
+      assert.strictEqual(bigintStats[key], BigInt(val))
       assert.strictEqual(
         bigintStats.isBlockDevice(),
-        numStats.isBlockDevice()
-      );
+        numStats.isBlockDevice(),
+      )
       assert.strictEqual(
         bigintStats.isCharacterDevice(),
-        numStats.isCharacterDevice()
-      );
+        numStats.isCharacterDevice(),
+      )
       assert.strictEqual(
         bigintStats.isDirectory(),
-        numStats.isDirectory()
-      );
+        numStats.isDirectory(),
+      )
       assert.strictEqual(
         bigintStats.isFIFO(),
-        numStats.isFIFO()
-      );
+        numStats.isFIFO(),
+      )
       assert.strictEqual(
         bigintStats.isFile(),
-        numStats.isFile()
-      );
+        numStats.isFile(),
+      )
       assert.strictEqual(
         bigintStats.isSocket(),
-        numStats.isSocket()
-      );
+        numStats.isSocket(),
+      )
       assert.strictEqual(
         bigintStats.isSymbolicLink(),
-        numStats.isSymbolicLink()
-      );
-    } else if (key.endsWith('Ms')) {
-      const nsKey = key.replace('Ms', 'Ns');
-      const msFromBigInt = bigintStats[key];
-      const nsFromBigInt = bigintStats[nsKey];
-      const msFromBigIntNs = Number(nsFromBigInt / (10n ** 6n));
-      const msFromNum = numStats[key];
+        numStats.isSymbolicLink(),
+      )
+    }
+    else if (key.endsWith('Ms')) {
+      const nsKey = key.replace('Ms', 'Ns')
+      const msFromBigInt = bigintStats[key]
+      const nsFromBigInt = bigintStats[nsKey]
+      const msFromBigIntNs = Number(nsFromBigInt / (10n ** 6n))
+      const msFromNum = numStats[key]
 
       assert(
         msFromNum - Number(msFromBigInt) <= allowableDelta,
-        `Number version ${key} = ${msFromNum}, ` +
-        `BigInt version ${key} = ${msFromBigInt}n, ` +
-        `Allowable delta = ${allowableDelta}`);
+        `Number version ${key} = ${msFromNum}, `
+        + `BigInt version ${key} = ${msFromBigInt}n, `
+        + `Allowable delta = ${allowableDelta}`)
 
       assert(
         msFromNum - Number(msFromBigIntNs) <= allowableDelta,
-        `Number version ${key} = ${msFromNum}, ` +
-        `BigInt version ${nsKey} = ${nsFromBigInt}n` +
-        ` = ${msFromBigIntNs}ms, Allowable delta = ${allowableDelta}`);
-    } else if (Number.isSafeInteger(val)) {
+        `Number version ${key} = ${msFromNum}, `
+        + `BigInt version ${nsKey} = ${nsFromBigInt}n`
+        + ` = ${msFromBigIntNs}ms, Allowable delta = ${allowableDelta}`)
+    }
+    else if (Number.isSafeInteger(val)) {
       assert.strictEqual(
         bigintStats[key], BigInt(val),
-        `${inspect(bigintStats[key])} !== ${inspect(BigInt(val))}\n` +
-        `key=${key}, val=${val}`
-      );
-    } else {
+        `${inspect(bigintStats[key])} !== ${inspect(BigInt(val))}\n`
+        + `key=${key}, val=${val}`,
+      )
+    }
+    else {
       assert(
         Number(bigintStats[key]) - val < 1,
-        `${key} is not a safe integer, difference should < 1.\n` +
-        `Number version ${val}, BigInt version ${bigintStats[key]}n`);
+        `${key} is not a safe integer, difference should < 1.\n`
+        + `Number version ${val}, BigInt version ${bigintStats[key]}n`)
     }
   }
 }
 
-const runSyncTest = (func, arg) => {
-  const startTime = process.hrtime.bigint();
-  const bigintStats = func(arg, common.mustNotMutateObjectDeep({ bigint: true }));
-  const numStats = func(arg);
-  const endTime = process.hrtime.bigint();
-  const allowableDelta = Math.ceil(Number(endTime - startTime) / 1e6);
-  verifyStats(bigintStats, numStats, allowableDelta);
-};
+function runSyncTest(func, arg) {
+  const startTime = process.hrtime.bigint()
+  const bigintStats = func(arg, common.mustNotMutateObjectDeep({ bigint: true }))
+  const numStats = func(arg)
+  const endTime = process.hrtime.bigint()
+  const allowableDelta = Math.ceil(Number(endTime - startTime) / 1e6)
+  verifyStats(bigintStats, numStats, allowableDelta)
+}
 
 {
-  const filename = getFilename();
-  runSyncTest(fs.statSync, filename);
+  const filename = getFilename()
+  runSyncTest(fs.statSync, filename)
 }
 
 if (!common.isWindows) {
-  const filename = getFilename();
-  const link = `${filename}-link`;
-  fs.symlinkSync(filename, link);
-  runSyncTest(fs.lstatSync, link);
+  const filename = getFilename()
+  const link = `${filename}-link`
+  fs.symlinkSync(filename, link)
+  runSyncTest(fs.lstatSync, link)
 }
 
 {
-  const filename = getFilename();
-  const fd = fs.openSync(filename, 'r');
-  runSyncTest(fs.fstatSync, fd);
-  fs.closeSync(fd);
+  const filename = getFilename()
+  const fd = fs.openSync(filename, 'r')
+  runSyncTest(fs.fstatSync, fd)
+  fs.closeSync(fd)
 }
 
 {
   assert.throws(
     () => fs.statSync('does_not_exist'),
-    { code: 'ENOENT' });
+    { code: 'ENOENT' })
   assert.strictEqual(
     fs.statSync('does_not_exist', common.mustNotMutateObjectDeep({ throwIfNoEntry: false })),
-    undefined);
+    undefined)
 }
 
 {
   assert.throws(
     () => fs.lstatSync('does_not_exist'),
-    { code: 'ENOENT' });
+    { code: 'ENOENT' })
   assert.strictEqual(
     fs.lstatSync('does_not_exist', common.mustNotMutateObjectDeep({ throwIfNoEntry: false })),
-    undefined);
+    undefined)
 }
 
 {
   assert.throws(
     () => fs.fstatSync(9999),
-    { code: 'EBADF' });
+    { code: 'EBADF' })
   assert.throws(
     () => fs.fstatSync(9999, common.mustNotMutateObjectDeep({ throwIfNoEntry: false })),
-    { code: 'EBADF' });
+    { code: 'EBADF' })
 }
 
-const runCallbackTest = (func, arg, done) => {
-  const startTime = process.hrtime.bigint();
+function runCallbackTest(func, arg, done) {
+  const startTime = process.hrtime.bigint()
   func(arg, common.mustNotMutateObjectDeep({ bigint: true }), common.mustCall((err, bigintStats) => {
     func(arg, common.mustCall((err, numStats) => {
-      const endTime = process.hrtime.bigint();
-      const allowableDelta = Math.ceil(Number(endTime - startTime) / 1e6);
-      verifyStats(bigintStats, numStats, allowableDelta);
-      if (done) {
-        done();
-      }
-    }));
-  }));
-};
+      const endTime = process.hrtime.bigint()
+      const allowableDelta = Math.ceil(Number(endTime - startTime) / 1e6)
+      verifyStats(bigintStats, numStats, allowableDelta)
+      if (done)
+        done()
+    }))
+  }))
+}
 
 {
-  const filename = getFilename();
-  runCallbackTest(fs.stat, filename);
+  const filename = getFilename()
+  runCallbackTest(fs.stat, filename)
 }
 
 if (!common.isWindows) {
-  const filename = getFilename();
-  const link = `${filename}-link`;
-  fs.symlinkSync(filename, link);
-  runCallbackTest(fs.lstat, link);
+  const filename = getFilename()
+  const link = `${filename}-link`
+  fs.symlinkSync(filename, link)
+  runCallbackTest(fs.lstat, link)
 }
 
 {
-  const filename = getFilename();
-  const fd = fs.openSync(filename, 'r');
-  runCallbackTest(fs.fstat, fd, () => { fs.closeSync(fd); });
+  const filename = getFilename()
+  const fd = fs.openSync(filename, 'r')
+  runCallbackTest(fs.fstat, fd, () => { fs.closeSync(fd) })
 }
 
-const runPromiseTest = async (func, arg) => {
-  const startTime = process.hrtime.bigint();
-  const bigintStats = await func(arg, common.mustNotMutateObjectDeep({ bigint: true }));
-  const numStats = await func(arg);
-  const endTime = process.hrtime.bigint();
-  const allowableDelta = Math.ceil(Number(endTime - startTime) / 1e6);
-  verifyStats(bigintStats, numStats, allowableDelta);
-};
+async function runPromiseTest(func, arg) {
+  const startTime = process.hrtime.bigint()
+  const bigintStats = await func(arg, common.mustNotMutateObjectDeep({ bigint: true }))
+  const numStats = await func(arg)
+  const endTime = process.hrtime.bigint()
+  const allowableDelta = Math.ceil(Number(endTime - startTime) / 1e6)
+  verifyStats(bigintStats, numStats, allowableDelta)
+}
 
 {
-  const filename = getFilename();
-  runPromiseTest(promiseFs.stat, filename);
+  const filename = getFilename()
+  runPromiseTest(promiseFs.stat, filename)
 }
 
 if (!common.isWindows) {
-  const filename = getFilename();
-  const link = `${filename}-link`;
-  fs.symlinkSync(filename, link);
-  runPromiseTest(promiseFs.lstat, link);
+  const filename = getFilename()
+  const link = `${filename}-link`
+  fs.symlinkSync(filename, link)
+  runPromiseTest(promiseFs.lstat, link)
 }
 
-(async function() {
-  const filename = getFilename();
-  const handle = await promiseFs.open(filename, 'r');
-  const startTime = process.hrtime.bigint();
-  const bigintStats = await handle.stat(common.mustNotMutateObjectDeep({ bigint: true }));
-  const numStats = await handle.stat();
-  const endTime = process.hrtime.bigint();
-  const allowableDelta = Math.ceil(Number(endTime - startTime) / 1e6);
-  verifyStats(bigintStats, numStats, allowableDelta);
-  await handle.close();
-})().then(common.mustCall());
+(async function () {
+  const filename = getFilename()
+  const handle = await promiseFs.open(filename, 'r')
+  const startTime = process.hrtime.bigint()
+  const bigintStats = await handle.stat(common.mustNotMutateObjectDeep({ bigint: true }))
+  const numStats = await handle.stat()
+  const endTime = process.hrtime.bigint()
+  const allowableDelta = Math.ceil(Number(endTime - startTime) / 1e6)
+  verifyStats(bigintStats, numStats, allowableDelta)
+  await handle.close()
+})().then(common.mustCall())

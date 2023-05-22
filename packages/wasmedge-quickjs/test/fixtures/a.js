@@ -19,28 +19,28 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const c = require('./b/c');
+const c = require('./b/c')
 
-console.error('load fixtures/a.js');
+console.error('load fixtures/a.js')
 
-var string = 'A';
+let string = 'A'
 
-exports.SomeClass = c.SomeClass;
+exports.SomeClass = c.SomeClass
 
-exports.A = function() {
-  return string;
-};
+exports.A = function () {
+  return string
+}
 
-exports.C = function() {
-  return c.C();
-};
+exports.C = function () {
+  return c.C()
+}
 
-exports.D = function() {
-  return c.D();
-};
+exports.D = function () {
+  return c.D()
+}
 
-exports.number = 42;
+exports.number = 42
 
-process.on('exit', function() {
-  string = 'A done';
-});
+process.on('exit', () => {
+  string = 'A done'
+})

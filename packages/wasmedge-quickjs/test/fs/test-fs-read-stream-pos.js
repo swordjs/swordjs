@@ -1,84 +1,85 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
 // Refs: https://github.com/nodejs/node/issues/33940
 
-import common from '../common';
-import tmpdir from '../common/tmpdir';
-import fs from 'fs';
-import assert from 'assert';
-import path from 'path';
+import fs from 'node:fs'
+import assert from 'node:assert'
+import path from 'node:path'
+import tmpdir from '../common/tmpdir'
+import common from '../common'
 
-tmpdir.refresh();
+tmpdir.refresh()
 
-const file = path.join(tmpdir.path, '/read_stream_pos_test.txt');
+const file = path.join(tmpdir.path, '/read_stream_pos_test.txt')
 
-fs.writeFileSync(file, '');
+fs.writeFileSync(file, '')
 
-let counter = 0;
+let counter = 0
 
 const writeInterval = setInterval(() => {
-  counter = counter + 1;
-  const line = `hello at ${counter}\n`;
-  fs.writeFileSync(file, line, { flag: 'a' });
-}, 1);
+  counter = counter + 1
+  const line = `hello at ${counter}\n`
+  fs.writeFileSync(file, line, { flag: 'a' })
+}, 1)
 
-const hwm = 10;
-let bufs = [];
-let isLow = false;
-let cur = 0;
-let stream;
+const hwm = 10
+let bufs = []
+let isLow = false
+let cur = 0
+let stream
 
 const readInterval = setInterval(() => {
-  if (stream) return;
+  if (stream)
+    return
 
   stream = fs.createReadStream(file, {
     highWaterMark: hwm,
-    start: cur
-  });
+    start: cur,
+  })
   stream.on('data', common.mustCallAtLeast((chunk) => {
-    cur += chunk.length;
-    bufs.push(chunk);
+    cur += chunk.length
+    bufs.push(chunk)
     if (isLow) {
       const brokenLines = Buffer.concat(bufs).toString()
         .split('\n')
         .filter((line) => {
-          const s = 'hello at'.slice(0, line.length);
-          if (line && !line.startsWith(s)) {
-            return true;
-          }
-          return false;
-        });
-      assert.strictEqual(brokenLines.length, 0);
-      exitTest();
-      return;
+          const s = 'hello at'.slice(0, line.length)
+          if (line && !line.startsWith(s))
+            return true
+
+          return false
+        })
+      assert.strictEqual(brokenLines.length, 0)
+      exitTest()
+      return
     }
-    if (chunk.length !== hwm) {
-      isLow = true;
-    }
-  }));
+    if (chunk.length !== hwm)
+      isLow = true
+  }))
   stream.on('end', () => {
-    stream = null;
-    isLow = false;
-    bufs = [];
-  });
-}, 10);
+    stream = null
+    isLow = false
+    bufs = []
+  })
+}, 10)
 
 // Time longer than 90 seconds to exit safely
 const endTimer = setTimeout(() => {
-  exitTest();
-}, 90000);
+  exitTest()
+}, 90000)
 
-const exitTest = () => {
-  clearInterval(readInterval);
-  clearInterval(writeInterval);
-  clearTimeout(endTimer);
+function exitTest() {
+  clearInterval(readInterval)
+  clearInterval(writeInterval)
+  clearTimeout(endTimer)
   if (stream && !stream.destroyed) {
     stream.on('close', () => {
-      process.exit();
-    });
-    stream.destroy();
-  } else {
-    process.exit();
+      process.exit()
+    })
+    stream.destroy()
   }
-};
+  else {
+    process.exit()
+  }
+}

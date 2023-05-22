@@ -1,21 +1,20 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import common from '../common';
+import fs from 'node:fs'
+import common from '../common'
 
 if (common.isIBMi)
-  common.skip('IBMi does not support `fs.watch()`');
+  common.skip('IBMi does not support `fs.watch()`')
 
-import fs from 'fs';
+const watcher = fs.watch(__filename, common.mustNotCall())
 
-const watcher = fs.watch(__filename, common.mustNotCall());
-
-watcher.unref();
+watcher.unref()
 
 setTimeout(
   common.mustCall(() => {
-    watcher.ref();
-    watcher.unref();
+    watcher.ref()
+    watcher.unref()
   }),
-  common.platformTimeout(100)
-);
+  common.platformTimeout(100),
+)

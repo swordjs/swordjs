@@ -1,34 +1,35 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
 
 // Flags: --expose-internals
-'use strict';
+'use strict'
 
 // This tests that fs.access and fs.accessSync works as expected
 // and the errors thrown from these APIs include the desired properties
 
-import process from 'process';
-import common from '../common';
+import process from 'node:process'
 
-import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
+import assert from 'node:assert'
+import fs from 'node:fs'
+import path from 'node:path'
 
-import { internalBinding } from 'internal/test/binding';
-const { UV_ENOENT } = internalBinding('uv');
+import { internalBinding } from 'internal/test/binding'
+import common from '../common'
 
-import tmpdir from '../common/tmpdir';
-const doesNotExist = path.join(tmpdir.path, '__this_should_not_exist');
-const readOnlyFile = path.join(tmpdir.path, 'read_only_file');
-const readWriteFile = path.join(tmpdir.path, 'read_write_file');
+import tmpdir from '../common/tmpdir'
+
+const { UV_ENOENT } = internalBinding('uv')
+const doesNotExist = path.join(tmpdir.path, '__this_should_not_exist')
+const readOnlyFile = path.join(tmpdir.path, 'read_only_file')
+const readWriteFile = path.join(tmpdir.path, 'read_write_file')
 
 function createFileWithPerms(file, mode) {
-  fs.writeFileSync(file, '');
-  fs.chmodSync(file, mode);
+  fs.writeFileSync(file, '')
+  fs.chmodSync(file, mode)
 }
 
-tmpdir.refresh();
-createFileWithPerms(readOnlyFile, 0o444);
-createFileWithPerms(readWriteFile, 0o666);
+tmpdir.refresh()
+createFileWithPerms(readOnlyFile, 0o444)
+createFileWithPerms(readWriteFile, 0o666)
 
 // On non-Windows supported platforms, fs.access(readOnlyFile, W_OK, ...)
 // always succeeds if node runs as the super user, which is sometimes the
@@ -51,46 +52,46 @@ createFileWithPerms(readWriteFile, 0o666);
 // It can prevent the test from removing files created before the change of user
 // id, but that's fine. In this case, it is the responsibility of the
 // continuous integration platform to take care of that.
-let hasWriteAccessForReadonlyFile = false;
+const hasWriteAccessForReadonlyFile = false
 
-assert.strictEqual(typeof fs.F_OK, 'number');
-assert.strictEqual(typeof fs.R_OK, 'number');
-assert.strictEqual(typeof fs.W_OK, 'number');
-assert.strictEqual(typeof fs.X_OK, 'number');
+assert.strictEqual(typeof fs.F_OK, 'number')
+assert.strictEqual(typeof fs.R_OK, 'number')
+assert.strictEqual(typeof fs.W_OK, 'number')
+assert.strictEqual(typeof fs.X_OK, 'number')
 
-const throwNextTick = (e) => { process.nextTick(() => { throw e; }); };
+function throwNextTick(e) { process.nextTick(() => { throw e }) }
 
-let __filename = args[0];
+const __filename = args[0]
 
-fs.access(__filename, common.mustCall(function(...args) {
-  assert.deepStrictEqual(args, [null]);
-}));
+fs.access(__filename, common.mustCall((...args) => {
+  assert.deepStrictEqual(args, [null])
+}))
 fs.promises.access(__filename)
   .then(common.mustCall())
-  .catch(throwNextTick);
-fs.access(__filename, fs.R_OK, common.mustCall(function(...args) {
-  assert.deepStrictEqual(args, [null]);
-}));
+  .catch(throwNextTick)
+fs.access(__filename, fs.R_OK, common.mustCall((...args) => {
+  assert.deepStrictEqual(args, [null])
+}))
 fs.promises.access(__filename, fs.R_OK)
   .then(common.mustCall())
-  .catch(throwNextTick);
-fs.access(readOnlyFile, fs.R_OK, common.mustCall(function(...args) {
-  assert.deepStrictEqual(args, [null]);
-}));
+  .catch(throwNextTick)
+fs.access(readOnlyFile, fs.R_OK, common.mustCall((...args) => {
+  assert.deepStrictEqual(args, [null])
+}))
 fs.promises.access(readOnlyFile, fs.R_OK)
   .then(common.mustCall())
-  .catch(throwNextTick);
+  .catch(throwNextTick)
 
 {
   const expectedError = (err) => {
-    assert.notStrictEqual(err, null);
-    assert.strictEqual(err.code, 'ENOENT');
-    assert.strictEqual(err.path, doesNotExist);
-  };
-  fs.access(doesNotExist, common.mustCall(expectedError));
+    assert.notStrictEqual(err, null)
+    assert.strictEqual(err.code, 'ENOENT')
+    assert.strictEqual(err.path, doesNotExist)
+  }
+  fs.access(doesNotExist, common.mustCall(expectedError))
   fs.promises.access(doesNotExist)
     .then(common.mustNotCall(), common.mustCall(expectedError))
-    .catch(throwNextTick);
+    .catch(throwNextTick)
 }
 /* require chmod
 {
@@ -111,66 +112,66 @@ fs.promises.access(readOnlyFile, fs.R_OK)
 */
 {
   const expectedError = (err) => {
-    assert.strictEqual(err.code, 'ERR_INVALID_ARG_TYPE');
-    assert.ok(err instanceof TypeError);
-    return true;
-  };
+    assert.strictEqual(err.code, 'ERR_INVALID_ARG_TYPE')
+    assert.ok(err instanceof TypeError)
+    return true
+  }
   assert.throws(
-    () => { fs.access(100, fs.F_OK, common.mustNotCall()); },
-    expectedError
-  );
+    () => { fs.access(100, fs.F_OK, common.mustNotCall()) },
+    expectedError,
+  )
 
   fs.promises.access(100, fs.F_OK)
     .then(common.mustNotCall(), common.mustCall(expectedError))
-    .catch(throwNextTick);
+    .catch(throwNextTick)
 }
 
 assert.throws(
   () => {
-    fs.access(__filename, fs.F_OK);
+    fs.access(__filename, fs.F_OK)
   },
   {
     code: 'ERR_INVALID_ARG_TYPE',
-    name: 'TypeError'
-  });
+    name: 'TypeError',
+  })
 
 assert.throws(
   () => {
-    fs.access(__filename, fs.F_OK, common.mustNotMutateObjectDeep({}));
+    fs.access(__filename, fs.F_OK, common.mustNotMutateObjectDeep({}))
   },
   {
     code: 'ERR_INVALID_ARG_TYPE',
-    name: 'TypeError'
-  });
+    name: 'TypeError',
+  })
 
 // Regular access should not throw.
-fs.accessSync(__filename);
-const mode = fs.R_OK | fs.W_OK;
+fs.accessSync(__filename)
+const mode = fs.R_OK | fs.W_OK
 fs.accessSync(readWriteFile, mode);
 
 // Invalid modes should throw.
 [
   false,
   1n,
-  { [Symbol.toPrimitive]() { return fs.R_OK; } },
+  { [Symbol.toPrimitive]() { return fs.R_OK } },
   [1],
   'r',
 ].forEach((mode, i) => {
-  console.log(mode, i);
+  console.log(mode, i)
   assert.throws(
     () => fs.access(readWriteFile, mode, common.mustNotCall()),
     {
       code: 'ERR_INVALID_ARG_TYPE',
-      message: /"mode" argument.+integer/
-    }
-  );
+      message: /"mode" argument.+integer/,
+    },
+  )
   assert.throws(
     () => fs.accessSync(readWriteFile, mode),
     {
       code: 'ERR_INVALID_ARG_TYPE',
-      message: /"mode" argument.+integer/
-    }
-  );
+      message: /"mode" argument.+integer/,
+    },
+  )
 });
 
 // Out of range modes should throw
@@ -180,52 +181,51 @@ fs.accessSync(readWriteFile, mode);
   Infinity,
   NaN,
 ].forEach((mode, i) => {
-  console.log(mode, i);
+  console.log(mode, i)
   assert.throws(
     () => fs.access(readWriteFile, mode, common.mustNotCall()),
     {
       code: 'ERR_OUT_OF_RANGE',
-      message: /"mode".+It must be an integer >= 0 && <= 7/
-    }
-  );
+      message: /"mode".+It must be an integer >= 0 && <= 7/,
+    },
+  )
   assert.throws(
     () => fs.accessSync(readWriteFile, mode),
     {
       code: 'ERR_OUT_OF_RANGE',
-      message: /"mode".+It must be an integer >= 0 && <= 7/
-    }
-  );
-});
-
-
-assert.throws(
-  () => { fs.accessSync(doesNotExist); },
-  (err) => {
-    assert.strictEqual(err.code, 'ENOENT');
-    assert.strictEqual(err.path, doesNotExist);
-    assert.strictEqual(
-      err.message,
-      `ENOENT: no such file or directory, access '${doesNotExist}'`
-    );
-    assert.strictEqual(err.constructor, Error);
-    assert.strictEqual(err.syscall, 'access');
-    assert.strictEqual(err.errno, UV_ENOENT);
-    return true;
-  }
-);
+      message: /"mode".+It must be an integer >= 0 && <= 7/,
+    },
+  )
+})
 
 assert.throws(
-  () => { fs.accessSync(Buffer.from(doesNotExist)); },
+  () => { fs.accessSync(doesNotExist) },
   (err) => {
-    assert.strictEqual(err.code, 'ENOENT');
-    assert.strictEqual(err.path, doesNotExist);
+    assert.strictEqual(err.code, 'ENOENT')
+    assert.strictEqual(err.path, doesNotExist)
     assert.strictEqual(
       err.message,
-      `ENOENT: no such file or directory, access '${doesNotExist}'`
-    );
-    assert.strictEqual(err.constructor, Error);
-    assert.strictEqual(err.syscall, 'access');
-    assert.strictEqual(err.errno, UV_ENOENT);
-    return true;
-  }
-);
+      `ENOENT: no such file or directory, access '${doesNotExist}'`,
+    )
+    assert.strictEqual(err.constructor, Error)
+    assert.strictEqual(err.syscall, 'access')
+    assert.strictEqual(err.errno, UV_ENOENT)
+    return true
+  },
+)
+
+assert.throws(
+  () => { fs.accessSync(Buffer.from(doesNotExist)) },
+  (err) => {
+    assert.strictEqual(err.code, 'ENOENT')
+    assert.strictEqual(err.path, doesNotExist)
+    assert.strictEqual(
+      err.message,
+      `ENOENT: no such file or directory, access '${doesNotExist}'`,
+    )
+    assert.strictEqual(err.constructor, Error)
+    assert.strictEqual(err.syscall, 'access')
+    assert.strictEqual(err.errno, UV_ENOENT)
+    return true
+  },
+)

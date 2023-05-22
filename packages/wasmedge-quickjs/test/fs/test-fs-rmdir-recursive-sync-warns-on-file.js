@@ -1,24 +1,24 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
-import common from '../common';
-import tmpdir from '../common/tmpdir';
-import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
+'use strict'
+import assert from 'node:assert'
+import fs from 'node:fs'
+import path from 'node:path'
+import tmpdir from '../common/tmpdir'
+import common from '../common'
 
-tmpdir.refresh();
+tmpdir.refresh()
 
 {
   common.expectWarning(
     'DeprecationWarning',
-    'In future versions of Node.js, fs.rmdir(path, { recursive: true }) ' +
-      'will be removed. Use fs.rm(path, { recursive: true }) instead',
-    'DEP0147'
-  );
-  const filePath = path.join(tmpdir.path, 'rmdir-recursive.txt');
-  fs.writeFileSync(filePath, '');
+    'In future versions of Node.js, fs.rmdir(path, { recursive: true }) '
+      + 'will be removed. Use fs.rm(path, { recursive: true }) instead',
+    'DEP0147',
+  )
+  const filePath = path.join(tmpdir.path, 'rmdir-recursive.txt')
+  fs.writeFileSync(filePath, '')
   assert.throws(
     () => fs.rmdirSync(filePath, { recursive: true }),
-    { code: common.isWindows ? 'ENOENT' : 'ENOTDIR' }
-  );
+    { code: common.isWindows ? 'ENOENT' : 'ENOTDIR' },
+  )
 }

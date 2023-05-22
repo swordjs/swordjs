@@ -20,77 +20,77 @@
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /* eslint-disable node-core/crypto-check */
-'use strict';
+'use strict'
 
-import { inspect } from "internal/util/inspect";
+import assert from 'node:assert'
+import process from 'node:process'
+import { inspect } from 'internal/util/inspect'
 
-import assert from "assert";
-import process from "process";
+const isWindows = process.platform === 'win32'
+const isAIX = process.platform === 'aix'
+const isSunOS = process.platform === 'sunos'
+const isFreeBSD = process.platform === 'freebsd'
+const isOpenBSD = process.platform === 'openbsd'
+const isLinux = process.platform === 'linux'
+const isOSX = process.platform === 'darwin'
+const isPi = false
+const isMainThread = true
+const isDumbTerminal = process.env.TERM === 'dumb'
 
-const isWindows = process.platform === 'win32';
-const isAIX = process.platform === 'aix';
-const isSunOS = process.platform === 'sunos';
-const isFreeBSD = process.platform === 'freebsd';
-const isOpenBSD = process.platform === 'openbsd';
-const isLinux = process.platform === 'linux';
-const isOSX = process.platform === 'darwin';
-const isPi = false;
-const isMainThread = true;
-const isDumbTerminal = process.env.TERM === 'dumb';
-
-const mustCallChecks = [];
+const mustCallChecks = []
 
 function runCallChecks() {
-  if (globalThis.assertPass === false) return;
+  if (globalThis.assertPass === false)
+    return
 
-  const failed = mustCallChecks.filter(function (context) {
+  const failed = mustCallChecks.filter((context) => {
     if ('minimum' in context) {
-      context.messageSegment = `at least ${context.minimum}`;
-      return context.actual < context.minimum;
+      context.messageSegment = `at least ${context.minimum}`
+      return context.actual < context.minimum
     }
-    context.messageSegment = `exactly ${context.exact}`;
-    return context.actual !== context.exact;
-  });
+    context.messageSegment = `exactly ${context.exact}`
+    return context.actual !== context.exact
+  })
 
-  failed.forEach(function (context) {
-    print(`Mismatched ${context.name} function calls. Expected ${context.messageSegment}, actual ${context.actual}.`);
-    print(context.stack.split('\n').slice(2).join('\n'));
-  });
+  failed.forEach((context) => {
+    print(`Mismatched ${context.name} function calls. Expected ${context.messageSegment}, actual ${context.actual}.`)
+    print(context.stack.split('\n').slice(2).join('\n'))
+  })
 
-  assert.strictEqual(failed.length, 0);
+  assert.strictEqual(failed.length, 0)
 }
 
-const noop = () => { };
+function noop() { }
 
 function _mustCallInner(fn, criteria = 1, field) {
   if (typeof fn === 'number') {
-    criteria = fn;
-    fn = noop;
-  } else if (fn === undefined) {
-    fn = noop;
+    criteria = fn
+    fn = noop
+  }
+  else if (fn === undefined) {
+    fn = noop
   }
 
   if (typeof criteria !== 'number')
-    throw new TypeError(`Invalid ${field} value: ${criteria}`);
+    throw new TypeError(`Invalid ${field} value: ${criteria}`)
 
   const context = {
     [field]: criteria,
     actual: 0,
     stack: inspect(new Error()),
-    name: fn.name || '<anonymous>'
-  };
+    name: fn.name || '<anonymous>',
+  }
 
   // Add the exit listener only once to avoid listener leak warnings
-  if (mustCallChecks.length === 0) {
-    globalThis.commonExitCheck = runCallChecks;
-  };
+  if (mustCallChecks.length === 0)
+    globalThis.commonExitCheck = runCallChecks
 
-  mustCallChecks.push(context);
+  mustCallChecks.push(context)
 
-  const _return = function () { // eslint-disable-line func-style
-    context.actual++;
-    return fn.apply(this, arguments);
-  };
+  const _return = function () {
+    context.actual++
+    return fn.apply(this, arguments)
+  }
   // Function instances have own properties that may be relevant.
   // Let's replicate those properties to the returned function.
   // Refs: https://tc39.es/ecma262/#sec-function-instances
@@ -107,126 +107,127 @@ function _mustCallInner(fn, criteria = 1, field) {
       enumerable: false,
       configurable: true,
     },
-  });
-  return _return;
+  })
+  return _return
 }
 
 export function mustCall(fn, exact) {
-  return _mustCallInner(fn, exact, 'exact');
+  return _mustCallInner(fn, exact, 'exact')
 }
 
 export function mustSucceed(fn, exact) {
   return mustCall(function (err, ...args) {
     if (err) {
-      print("must succeed but got: ", err);
-      print(err.stack);
+      print('must succeed but got: ', err)
+      print(err.stack)
     }
-    assert.ifError(err);
+    assert.ifError(err)
     if (typeof fn === 'function')
-      return fn.apply(this, args);
-  }, exact);
+      return fn.apply(this, args)
+  }, exact)
 }
 
 export function mustCallAtLeast(fn, minimum) {
-  return _mustCallInner(fn, minimum, 'minimum');
+  return _mustCallInner(fn, minimum, 'minimum')
 }
 
 export function mustNotCall(msg) {
-  const callSite = new Error().stack;
+  const callSite = new Error().stack
   return function mustNotCall(...args) {
-    const argsInfo = args.length > 0 ?
-      `\ncalled with arguments: ${args.map((arg) => inspect(arg)).join(', ')}` : '';
+    const argsInfo = args.length > 0
+      ? `\ncalled with arguments: ${args.map(arg => inspect(arg)).join(', ')}`
+      : ''
     assert.fail(
-      `${msg || 'function should not have been called'} at ${callSite}` +
-      argsInfo);
-  };
+      `${msg || 'function should not have been called'} at ${callSite}${
+      argsInfo}`)
+  }
 }
 
-const _mustNotMutateObjectDeepProxies = new WeakMap();
+const _mustNotMutateObjectDeepProxies = new WeakMap()
 
 export function mustNotMutateObjectDeep(original) {
   // Return primitives and functions directly. Primitives are immutable, and
   // proxied functions are impossible to compare against originals, e.g. with
   // `assert.deepEqual()`.
-  if (original === null || typeof original !== 'object') {
-    return original;
-  }
+  if (original === null || typeof original !== 'object')
+    return original
 
-  const cachedProxy = _mustNotMutateObjectDeepProxies.get(original);
-  if (cachedProxy) {
-    return cachedProxy;
-  }
+  const cachedProxy = _mustNotMutateObjectDeepProxies.get(original)
+  if (cachedProxy)
+    return cachedProxy
 
   const _mustNotMutateObjectDeepHandler = {
     __proto__: null,
     defineProperty(target, property, descriptor) {
-      assert.fail(`Expected no side effects, got ${inspect(property)} ` +
-        'defined');
+      assert.fail(`Expected no side effects, got ${inspect(property)} `
+        + 'defined')
     },
     deleteProperty(target, property) {
-      assert.fail(`Expected no side effects, got ${inspect(property)} ` +
-        'deleted');
+      assert.fail(`Expected no side effects, got ${inspect(property)} `
+        + 'deleted')
     },
     get(target, prop, receiver) {
-      return mustNotMutateObjectDeep(Reflect.get(target, prop, receiver));
+      return mustNotMutateObjectDeep(Reflect.get(target, prop, receiver))
     },
     preventExtensions(target) {
-      assert.fail('Expected no side effects, got extensions prevented on ' +
-        inspect(target));
+      assert.fail(`Expected no side effects, got extensions prevented on ${
+        inspect(target)}`)
     },
     set(target, property, value, receiver) {
-      assert.fail(`Expected no side effects, got ${inspect(value)} ` +
-        `assigned to ${inspect(property)}`);
+      assert.fail(`Expected no side effects, got ${inspect(value)} `
+        + `assigned to ${inspect(property)}`)
     },
     setPrototypeOf(target, prototype) {
-      assert.fail(`Expected no side effects, got set prototype to ${prototype}`);
-    }
-  };
+      assert.fail(`Expected no side effects, got set prototype to ${prototype}`)
+    },
+  }
 
-  const proxy = new Proxy(original, _mustNotMutateObjectDeepHandler);
-  _mustNotMutateObjectDeepProxies.set(original, proxy);
-  return proxy;
+  const proxy = new Proxy(original, _mustNotMutateObjectDeepHandler)
+  _mustNotMutateObjectDeepProxies.set(original, proxy)
+  return proxy
 }
 
 export function invalidArgTypeHelper(input) {
-  if (input == null) {
-    return ` Received ${input}`;
-  }
-  if (typeof input === 'function' && input.name) {
-    return ` Received function ${input.name}`;
-  }
+  if (input == null)
+    return ` Received ${input}`
+
+  if (typeof input === 'function' && input.name)
+    return ` Received function ${input.name}`
+
   if (typeof input === 'object') {
-    if (input.constructor?.name) {
-      return ` Received an instance of ${input.constructor.name}`;
-    }
-    return ` Received ${inspect(input, { depth: -1 })}`;
+    if (input.constructor?.name)
+      return ` Received an instance of ${input.constructor.name}`
+
+    return ` Received ${inspect(input, { depth: -1 })}`
   }
 
-  let inspected = inspect(input, { colors: false });
-  if (inspected.length > 28) { inspected = `${inspected.slice(inspected, 0, 25)}...`; }
+  let inspected = inspect(input, { colors: false })
+  if (inspected.length > 28)
+    inspected = `${inspected.slice(inspected, 0, 25)}...`
 
-  return ` Received type ${typeof input} (${inspected})`;
+  return ` Received type ${typeof input} (${inspected})`
 }
 
 export function skip(msg) {
-  print("skip, ", msg);
+  print('skip, ', msg)
 }
 
 export function platformTimeout(ms) {
-  return ms;
+  return ms
 }
 
 export function runWithInvalidFD(func) {
-  let fd = 1 << 30;
+  let fd = 1 << 30
   // Get first known bad file descriptor. 1 << 30 is usually unlikely to
   // be an valid one.
   try {
     while (fs.fstatSync(fd--) && fd > 0);
-  } catch {
-    return func(fd);
+  }
+  catch {
+    return func(fd)
   }
 
-  skip('Could not generate an invalid fd');
+  skip('Could not generate an invalid fd')
 }
 
 export function expectWarning() {
@@ -239,25 +240,25 @@ export function expectsError(validator, exact) {
     if (args.length !== 1) {
       // Do not use `assert.strictEqual()` to prevent `inspect` from
       // always being called.
-      assert.fail(`Expected one argument, got ${inspect(args)}`);
+      assert.fail(`Expected one argument, got ${inspect(args)}`)
     }
-    const error = args.pop();
-    const descriptor = Object.getOwnPropertyDescriptor(error, 'message');
+    const error = args.pop()
+    const descriptor = Object.getOwnPropertyDescriptor(error, 'message')
     // The error message should be non-enumerable
-    assert.strictEqual(descriptor.enumerable, false);
+    assert.strictEqual(descriptor.enumerable, false)
 
-    assert.throws(() => { throw error; }, validator);
-    return true;
-  }, exact);
+    assert.throws(() => { throw error }, validator)
+    return true
+  }, exact)
 }
 export function canCreateSymLink() {
-  return true;
+  return true
 }
 
 export function getArrayBufferViews(buf) {
-  const { buffer, byteOffset, byteLength } = buf;
+  const { buffer, byteOffset, byteLength } = buf
 
-  const out = [];
+  const out = []
 
   const arrayBufferViews = [
     Int8Array,
@@ -272,15 +273,14 @@ export function getArrayBufferViews(buf) {
     BigInt64Array,
     BigUint64Array,
     DataView,
-  ];
+  ]
 
   for (const type of arrayBufferViews) {
-    const { BYTES_PER_ELEMENT = 1 } = type;
-    if (byteLength % BYTES_PER_ELEMENT === 0) {
-      out.push(new type(buffer, byteOffset, byteLength / BYTES_PER_ELEMENT));
-    }
+    const { BYTES_PER_ELEMENT = 1 } = type
+    if (byteLength % BYTES_PER_ELEMENT === 0)
+      out.push(new type(buffer, byteOffset, byteLength / BYTES_PER_ELEMENT))
   }
-  return out;
+  return out
 }
 
 const common = {
@@ -306,7 +306,7 @@ const common = {
   expectWarning,
   expectsError,
   canCreateSymLink,
-  getArrayBufferViews
-};
+  getArrayBufferViews,
+}
 
-export default common;
+export default common

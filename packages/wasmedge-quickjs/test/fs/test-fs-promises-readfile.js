@@ -1,31 +1,31 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import common from '../common';
+import assert from 'node:assert'
+import path from 'node:path'
+import { readFile, writeFile } from 'node:fs/promises'
+import common from '../common'
+import tmpdir from '../common/tmpdir'
 
-import assert from 'assert';
-import path from 'path';
-import { writeFile, readFile } from 'fs/promises';
-import tmpdir from '../common/tmpdir';
-tmpdir.refresh();
+tmpdir.refresh()
 
-const fn = path.join(tmpdir.path, 'large-file');
+const fn = path.join(tmpdir.path, 'large-file')
 
 // Creating large buffer with random content
 const largeBuffer = Buffer.from(
   Array.apply(null, { length: 16834 * 2 })
     .map(Math.random)
-    .map((number) => (number * (1 << 8)))
-);
+    .map(number => (number * (1 << 8))),
+)
 
 async function createLargeFile() {
   // Writing buffer to a file then try to read it
-  await writeFile(fn, largeBuffer);
+  await writeFile(fn, largeBuffer)
 }
 
 async function validateReadFile() {
-  const readBuffer = await readFile(fn);
-  assert.strictEqual(readBuffer.equals(largeBuffer), true);
+  const readBuffer = await readFile(fn)
+  assert.strictEqual(readBuffer.equals(largeBuffer), true)
 }
 
 async function validateReadFileProc() {
@@ -37,26 +37,26 @@ async function validateReadFileProc() {
 
   // Test is Linux-specific.
   if (!common.isLinux)
-    return;
+    return
 
-  const hostname = await readFile('/proc/sys/kernel/hostname');
-  assert.ok(hostname.length > 0);
+  const hostname = await readFile('/proc/sys/kernel/hostname')
+  assert.ok(hostname.length > 0)
 }
 
 function validateReadFileAbortLogicBefore() {
-  const signal = AbortSignal.abort();
+  const signal = AbortSignal.abort()
   assert.rejects(readFile(fn, { signal }), {
-    name: 'AbortError'
-  });
+    name: 'AbortError',
+  })
 }
 
 function validateReadFileAbortLogicDuring() {
-  const controller = new AbortController();
-  const signal = controller.signal;
-  process.nextTick(() => controller.abort());
+  const controller = new AbortController()
+  const signal = controller.signal
+  process.nextTick(() => controller.abort())
   assert.rejects(readFile(fn, { signal }), {
-    name: 'AbortError'
-  });
+    name: 'AbortError',
+  })
 }
 
 async function validateWrongSignalParam() {
@@ -64,17 +64,16 @@ async function validateWrongSignalParam() {
   // is passed, ERR_INVALID_ARG_TYPE is thrown
 
   await assert.rejects(async () => {
-    const callback = common.mustNotCall(() => {});
-    await readFile(fn, { signal: 'hello' }, callback);
-  }, { code: 'ERR_INVALID_ARG_TYPE', name: 'TypeError' });
-
+    const callback = common.mustNotCall(() => {})
+    await readFile(fn, { signal: 'hello' }, callback)
+  }, { code: 'ERR_INVALID_ARG_TYPE', name: 'TypeError' })
 }
 
 (async () => {
-  await createLargeFile();
-  await validateReadFile();
-  await validateReadFileProc();
-  //await validateReadFileAbortLogicBefore();
-  //await validateReadFileAbortLogicDuring();
-  //await validateWrongSignalParam();
-})().then(common.mustCall());
+  await createLargeFile()
+  await validateReadFile()
+  await validateReadFileProc()
+  // await validateReadFileAbortLogicBefore();
+  // await validateReadFileAbortLogicDuring();
+  // await validateWrongSignalParam();
+})().then(common.mustCall())

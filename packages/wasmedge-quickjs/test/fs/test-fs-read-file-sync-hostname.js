@@ -19,15 +19,16 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-if (!common.isLinux)
-  common.skip('Test is linux specific.');
+'use strict'
 
-import assert from 'assert';
-import fs from 'fs';
+import assert from 'node:assert'
+import fs from 'node:fs'
+import common from '../common'
+
+if (!common.isLinux)
+  common.skip('Test is linux specific.')
 
 // Test to make sure reading a file under the /proc directory works. See:
 // https://groups.google.com/forum/#!topic/nodejs-dev/rxZ_RoH1Gn0
-const hostname = fs.readFileSync('/proc/sys/kernel/hostname');
-assert.ok(hostname.length > 0);
+const hostname = fs.readFileSync('/proc/sys/kernel/hostname')
+assert.ok(hostname.length > 0)

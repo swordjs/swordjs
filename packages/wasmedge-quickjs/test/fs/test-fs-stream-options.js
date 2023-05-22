@@ -1,50 +1,50 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
-import { mustNotMutateObjectDeep } from '../common';
+'use strict'
 
-import assert from 'assert';
-import fs from 'fs';
+import assert from 'node:assert'
+import fs from 'node:fs'
+import { mustNotMutateObjectDeep } from '../common'
 
 {
-  const fd = 'k';
+  const fd = 'k'
 
   assert.throws(
     () => {
-      fs.createReadStream(null, mustNotMutateObjectDeep({ fd }));
+      fs.createReadStream(null, mustNotMutateObjectDeep({ fd }))
     },
     {
       code: 'ERR_INVALID_ARG_TYPE',
       name: 'TypeError',
-    });
+    })
 
   assert.throws(
     () => {
-      fs.createWriteStream(null, mustNotMutateObjectDeep({ fd }));
+      fs.createWriteStream(null, mustNotMutateObjectDeep({ fd }))
     },
     {
       code: 'ERR_INVALID_ARG_TYPE',
       name: 'TypeError',
-    });
+    })
 }
 
 {
-  const path = 46;
+  const path = 46
 
   assert.throws(
     () => {
-      fs.createReadStream(path);
+      fs.createReadStream(path)
     },
     {
       code: 'ERR_INVALID_ARG_TYPE',
       name: 'TypeError',
-    });
+    })
 
   assert.throws(
     () => {
-      fs.createWriteStream(path);
+      fs.createWriteStream(path)
     },
     {
       code: 'ERR_INVALID_ARG_TYPE',
       name: 'TypeError',
-    });
+    })
 }

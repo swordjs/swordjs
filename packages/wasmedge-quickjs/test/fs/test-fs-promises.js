@@ -1,21 +1,22 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import common from '../common';
-import assert from 'assert';
-import tmpdir from '../common/tmpdir';
-import fixtures from '../common/fixtures';
-import path from 'path';
-import fs from 'fs';
-const fsPromises = fs.promises;
+import assert from 'node:assert'
+import path from 'node:path'
+import fs from 'node:fs'
+import common from '../common'
+import tmpdir from '../common/tmpdir'
+import fixtures from '../common/fixtures'
+
+const fsPromises = fs.promises
 const {
   access,
-  //chmod,
-  //chown,
+  // chmod,
+  // chown,
   copyFile,
-  //lchown,
+  // lchown,
   link,
-  //lchmod,
+  // lchmod,
   lstat,
   lutimes,
   mkdir,
@@ -23,8 +24,8 @@ const {
   open,
   readFile,
   readdir,
-  //readlink,
-  //realpath,
+  // readlink,
+  // realpath,
   rename,
   rmdir,
   stat,
@@ -32,130 +33,129 @@ const {
   truncate,
   unlink,
   utimes,
-  writeFile
-} = fsPromises;
+  writeFile,
+} = fsPromises
 
-const tmpDir = tmpdir.path;
+const tmpDir = tmpdir.path
 
-let dirc = 0;
+let dirc = 0
 function nextdir() {
-  return `test${++dirc}`;
+  return `test${++dirc}`
 }
 
-const __filename = args[0];
+const __filename = args[0]
 
 // fs.promises should be enumerable.
 assert.strictEqual(
   Object.prototype.propertyIsEnumerable.call(fs, 'promises'),
-  true
-);
+  true,
+)
 
 {
   access(__filename, 0)
-    .then(common.mustCall());
+    .then(common.mustCall())
 
   assert.rejects(
     access('this file does not exist', 0),
     {
       code: 'ENOENT',
       name: 'Error',
-      message: /^ENOENT: no such file or directory, access/
-    }
-  );
+      message: /^ENOENT: no such file or directory, access/,
+    },
+  )
 
   assert.rejects(
     access(__filename, 8),
     {
       code: 'ERR_OUT_OF_RANGE',
-      message: /"mode".*must be an integer >= 0 && <= 7\. Received 8$/
-    }
-  );
+      message: /"mode".*must be an integer >= 0 && <= 7\. Received 8$/,
+    },
+  )
 
   assert.rejects(
-    access(__filename, { [Symbol.toPrimitive]() { return 5; } }),
+    access(__filename, { [Symbol.toPrimitive]() { return 5 } }),
     {
       code: 'ERR_INVALID_ARG_TYPE',
-      message: /"mode" argument.+integer\. Received an instance of Object$/
-    }
-  );
+      message: /"mode" argument.+integer\. Received an instance of Object$/,
+    },
+  )
 }
 
 function verifyStatObject(stat) {
-  assert.strictEqual(typeof stat, 'object');
-  assert.strictEqual(typeof stat.dev, 'number');
-  assert.strictEqual(typeof stat.mode, 'number');
+  assert.strictEqual(typeof stat, 'object')
+  assert.strictEqual(typeof stat.dev, 'number')
+  assert.strictEqual(typeof stat.mode, 'number')
 }
 
 async function getHandle(dest) {
-  await copyFile(fixtures.path('baz.js'), dest);
-  await access(dest);
+  await copyFile(fixtures.path('baz.js'), dest)
+  await access(dest)
 
-  return open(dest, 'r+');
+  return open(dest, 'r+')
 }
 
 async function executeOnHandle(dest, func) {
-  let handle;
+  let handle
   try {
-    handle = await getHandle(dest);
-    await func(handle);
-  } finally {
-    if (handle) {
-      await handle.close();
-    }
+    handle = await getHandle(dest)
+    await func(handle)
+  }
+  finally {
+    if (handle)
+      await handle.close()
   }
 }
 
 {
   async function doTest() {
-    tmpdir.refresh();
+    tmpdir.refresh()
 
-    const dest = path.resolve(tmpDir, 'baz.js');
+    const dest = path.resolve(tmpDir, 'baz.js')
 
     // handle is object
     {
       await executeOnHandle(dest, async (handle) => {
-        assert.strictEqual(typeof handle, 'object');
-      });
+        assert.strictEqual(typeof handle, 'object')
+      })
     }
 
     // file stats
     {
       await executeOnHandle(dest, async (handle) => {
-        let stats = await handle.stat();
-        verifyStatObject(stats);
-        assert.strictEqual(stats.size, 35);
+        let stats = await handle.stat()
+        verifyStatObject(stats)
+        assert.strictEqual(stats.size, 35)
 
-        await handle.truncate(1);
+        await handle.truncate(1)
 
-        stats = await handle.stat();
-        verifyStatObject(stats);
-        assert.strictEqual(stats.size, 1);
+        stats = await handle.stat()
+        verifyStatObject(stats)
+        assert.strictEqual(stats.size, 1)
 
-        stats = await stat(dest);
-        verifyStatObject(stats);
+        stats = await stat(dest)
+        verifyStatObject(stats)
 
-        stats = await handle.stat();
-        verifyStatObject(stats);
+        stats = await handle.stat()
+        verifyStatObject(stats)
 
-        await handle.datasync();
-        await handle.sync();
-      });
+        await handle.datasync()
+        await handle.sync()
+      })
     }
 
     // Test fs.read promises when length to read is zero bytes
     {
-      const dest = path.resolve(tmpDir, 'test1.js');
+      const dest = path.resolve(tmpDir, 'test1.js')
       await executeOnHandle(dest, async (handle) => {
-        const buf = Buffer.from('DAWGS WIN');
-        const bufLen = buf.length;
-        await handle.write(buf);
-        const ret = await handle.read(Buffer.alloc(bufLen), 0, 0, 0);
-        assert.strictEqual(ret.bytesRead, 0);
+        const buf = Buffer.from('DAWGS WIN')
+        const bufLen = buf.length
+        await handle.write(buf)
+        const ret = await handle.read(Buffer.alloc(bufLen), 0, 0, 0)
+        assert.strictEqual(ret.bytesRead, 0)
 
-        await unlink(dest);
-      });
+        await unlink(dest)
+      })
     }
-
 
     /* Undocumented usage
     // Use fallback buffer allocation when input not buffer
@@ -170,27 +170,27 @@ async function executeOnHandle(dest, func) {
     // Bytes written to file match buffer
     {
       await executeOnHandle(dest, async (handle) => {
-        const buf = Buffer.from('hello fsPromises');
-        const bufLen = buf.length;
-        await handle.write(buf);
-        const ret = await handle.read(Buffer.alloc(bufLen), 0, bufLen, 0);
-        assert.strictEqual(ret.bytesRead, bufLen);
-        assert.deepStrictEqual(ret.buffer, buf);
-      });
+        const buf = Buffer.from('hello fsPromises')
+        const bufLen = buf.length
+        await handle.write(buf)
+        const ret = await handle.read(Buffer.alloc(bufLen), 0, bufLen, 0)
+        assert.strictEqual(ret.bytesRead, bufLen)
+        assert.deepStrictEqual(ret.buffer, buf)
+      })
     }
 
     // Truncate file to specified length
     {
       await executeOnHandle(dest, async (handle) => {
-        const buf = Buffer.from('hello FileHandle');
-        const bufLen = buf.length;
-        await handle.write(buf, 0, bufLen, 0);
-        const ret = await handle.read(Buffer.alloc(bufLen), 0, bufLen, 0);
-        assert.strictEqual(ret.bytesRead, bufLen);
-        assert.deepStrictEqual(ret.buffer, buf);
-        await truncate(dest, 5);
-        assert.strictEqual((await readFile(dest)).toString(), 'hello');
-      });
+        const buf = Buffer.from('hello FileHandle')
+        const bufLen = buf.length
+        await handle.write(buf, 0, bufLen, 0)
+        const ret = await handle.read(Buffer.alloc(bufLen), 0, bufLen, 0)
+        assert.strictEqual(ret.bytesRead, bufLen)
+        assert.deepStrictEqual(ret.buffer, buf)
+        await truncate(dest, 5)
+        assert.strictEqual((await readFile(dest)).toString(), 'hello')
+      })
     }
 
     /*
@@ -236,20 +236,20 @@ async function executeOnHandle(dest, func) {
     // Set modification times
     {
       await executeOnHandle(dest, async (handle) => {
-
-        await utimes(dest, new Date(), new Date());
+        await utimes(dest, new Date(), new Date())
 
         try {
-          await handle.utimes(new Date(), new Date());
-        } catch (err) {
+          await handle.utimes(new Date(), new Date())
+        }
+        catch (err) {
           // Some systems do not have futimes. If there is an error,
           // expect it to be ENOSYS
           common.expectsError({
             code: 'ENOSYS',
-            name: 'Error'
-          })(err);
+            name: 'Error',
+          })(err)
         }
-      });
+      })
     }
 
     /*
@@ -269,21 +269,21 @@ async function executeOnHandle(dest, func) {
 
     // create symlink
     {
-      const newPath = path.resolve(tmpDir, 'baz2.js');
-      await rename(dest, newPath);
-      let stats = await stat(newPath);
-      verifyStatObject(stats);
+      const newPath = path.resolve(tmpDir, 'baz2.js')
+      await rename(dest, newPath)
+      let stats = await stat(newPath)
+      verifyStatObject(stats)
 
       if (common.canCreateSymLink()) {
-        const newLink = path.resolve(tmpDir, 'baz3.js');
-        await symlink(newPath, newLink);
+        const newLink = path.resolve(tmpDir, 'baz3.js')
+        await symlink(newPath, newLink)
         /*
         if (!common.isWindows) {
           await lchown(newLink, process.getuid(), process.getgid());
         }
         */
-        stats = await lstat(newLink);
-        verifyStatObject(stats);
+        stats = await lstat(newLink)
+        verifyStatObject(stats)
 
         /*
         assert.strictEqual(newPath.toLowerCase(),
@@ -311,7 +311,7 @@ async function executeOnHandle(dest, func) {
         }
         */
 
-        await unlink(newLink);
+        await unlink(newLink)
       }
     }
 
@@ -328,67 +328,67 @@ async function executeOnHandle(dest, func) {
 
     // create hard link
     {
-      const newPath = path.resolve(tmpDir, 'baz2.js');
-      const newLink = path.resolve(tmpDir, 'baz4.js');
-      await link(newPath, newLink);
+      const newPath = path.resolve(tmpDir, 'baz2.js')
+      const newLink = path.resolve(tmpDir, 'baz4.js')
+      await link(newPath, newLink)
 
-      await unlink(newLink);
+      await unlink(newLink)
     }
 
     // Testing readdir lists both files and directories
     {
-      const newDir = path.resolve(tmpDir, 'dir');
-      const newFile = path.resolve(tmpDir, 'foo.js');
+      const newDir = path.resolve(tmpDir, 'dir')
+      const newFile = path.resolve(tmpDir, 'foo.js')
 
-      await mkdir(newDir);
-      await writeFile(newFile, 'DAWGS WIN!', 'utf8');
+      await mkdir(newDir)
+      await writeFile(newFile, 'DAWGS WIN!', 'utf8')
 
-      const stats = await stat(newDir);
-      assert(stats.isDirectory());
-      const list = await readdir(tmpDir);
-      assert.notStrictEqual(list.indexOf('dir'), -1);
-      assert.notStrictEqual(list.indexOf('foo.js'), -1);
-      await rmdir(newDir);
-      await unlink(newFile);
+      const stats = await stat(newDir)
+      assert(stats.isDirectory())
+      const list = await readdir(tmpDir)
+      assert.notStrictEqual(list.indexOf('dir'), -1)
+      assert.notStrictEqual(list.indexOf('foo.js'), -1)
+      await rmdir(newDir)
+      await unlink(newFile)
     }
 
     // Use fallback encoding when input is null
     {
-      const newFile = path.resolve(tmpDir, 'dogs_running.js');
-      await writeFile(newFile, 'dogs running', { encoding: null });
-      const fileExists = fs.existsSync(newFile);
-      assert.strictEqual(fileExists, true);
+      const newFile = path.resolve(tmpDir, 'dogs_running.js')
+      await writeFile(newFile, 'dogs running', { encoding: null })
+      const fileExists = fs.existsSync(newFile)
+      assert.strictEqual(fileExists, true)
     }
 
     // `mkdir` when options is number.
     {
-      const dir = path.join(tmpDir, nextdir());
-      await mkdir(dir, 777);
-      const stats = await stat(dir);
-      assert(stats.isDirectory());
+      const dir = path.join(tmpDir, nextdir())
+      await mkdir(dir, 777)
+      const stats = await stat(dir)
+      assert(stats.isDirectory())
     }
 
     // `mkdir` when options is string.
     {
-      const dir = path.join(tmpDir, nextdir());
-      await mkdir(dir, '777');
-      const stats = await stat(dir);
-      assert(stats.isDirectory());
+      const dir = path.join(tmpDir, nextdir())
+      await mkdir(dir, '777')
+      const stats = await stat(dir)
+      assert(stats.isDirectory())
     }
 
     // `mkdirp` when folder does not yet exist.
     {
-      const dir = path.join(tmpDir, nextdir(), nextdir());
-      await mkdir(dir, { recursive: true });
-      const stats = await stat(dir);
-      assert(stats.isDirectory());
+      const dir = path.join(tmpDir, nextdir(), nextdir())
+      await mkdir(dir, { recursive: true })
+      const stats = await stat(dir)
+      assert(stats.isDirectory())
     }
 
     // `mkdirp` when path is a file.
     {
-      const dir = path.join(tmpDir, nextdir(), nextdir());
-      await mkdir(path.dirname(dir));
-      await writeFile(dir, '');
+      const dir = path.join(tmpDir, nextdir(), nextdir())
+      await mkdir(path.dirname(dir))
+      await writeFile(dir, '')
       assert.rejects(
         mkdir(dir, { recursive: true }),
         {
@@ -396,16 +396,16 @@ async function executeOnHandle(dest, func) {
           message: /EEXIST: .*mkdir/,
           name: 'Error',
           syscall: 'mkdir',
-        }
-      );
+        },
+      )
     }
 
     // `mkdirp` when part of the path is a file.
     {
-      const file = path.join(tmpDir, nextdir(), nextdir());
-      const dir = path.join(file, nextdir(), nextdir());
-      await mkdir(path.dirname(file));
-      await writeFile(file, '');
+      const file = path.join(tmpDir, nextdir(), nextdir())
+      const dir = path.join(file, nextdir(), nextdir())
+      await mkdir(path.dirname(file))
+      await writeFile(file, '')
       assert.rejects(
         mkdir(dir, { recursive: true }),
         {
@@ -413,24 +413,24 @@ async function executeOnHandle(dest, func) {
           message: /ENOTDIR: .*mkdir/,
           name: 'Error',
           syscall: 'mkdir',
-        }
-      );
+        },
+      )
     }
 
     // mkdirp ./
     {
-      const dir = path.resolve(tmpDir, `${nextdir()}/./${nextdir()}`);
-      await mkdir(dir, { recursive: true });
-      const stats = await stat(dir);
-      assert(stats.isDirectory());
+      const dir = path.resolve(tmpDir, `${nextdir()}/./${nextdir()}`)
+      await mkdir(dir, { recursive: true })
+      const stats = await stat(dir)
+      assert(stats.isDirectory())
     }
 
     // mkdirp ../
     {
-      const dir = path.resolve(tmpDir, `${nextdir()}/../${nextdir()}`);
-      await mkdir(dir, { recursive: true });
-      const stats = await stat(dir);
-      assert(stats.isDirectory());
+      const dir = path.resolve(tmpDir, `${nextdir()}/../${nextdir()}`)
+      await mkdir(dir, { recursive: true })
+      const stats = await stat(dir)
+      assert(stats.isDirectory())
     }
 
     // fs.mkdirp requires the recursive option to be of type boolean.
@@ -443,23 +443,23 @@ async function executeOnHandle(dest, func) {
           async () => mkdir(dir, { recursive }),
           {
             code: 'ERR_INVALID_ARG_TYPE',
-            name: 'TypeError'
-          }
-        );
-      });
+            name: 'TypeError',
+          },
+        )
+      })
     }
 
     // `mkdtemp` with invalid numeric prefix
     {
-      await mkdtemp(path.resolve(tmpDir, 'FOO'));
+      await mkdtemp(path.resolve(tmpDir, 'FOO'))
       assert.rejects(
         // mkdtemp() expects to get a string prefix.
         async () => mkdtemp(1),
         {
           code: 'ERR_INVALID_ARG_TYPE',
-          name: 'TypeError'
-        }
-      );
+          name: 'TypeError',
+        },
+      )
     }
 
     // Regression test for https://github.com/nodejs/node/issues/38168
@@ -469,13 +469,13 @@ async function executeOnHandle(dest, func) {
           async () => handle.write('abc', 0, 'hex'),
           {
             code: 'ERR_INVALID_ARG_VALUE',
-            message: /'encoding' is invalid for data of length 3/
-          }
-        );
+            message: /'encoding' is invalid for data of length 3/,
+          },
+        )
 
-        const ret = await handle.write('abcd', 0, 'hex');
-        assert.strictEqual(ret.bytesWritten, 2);
-      });
+        const ret = await handle.write('abcd', 0, 'hex')
+        assert.strictEqual(ret.bytesWritten, 2)
+      })
     }
 
     /*
@@ -491,5 +491,5 @@ async function executeOnHandle(dest, func) {
     */
   }
 
-  doTest().then(common.mustCall()).catch(err => print(err, err.stack));
+  doTest().then(common.mustCall()).catch(err => print(err, err.stack))
 }

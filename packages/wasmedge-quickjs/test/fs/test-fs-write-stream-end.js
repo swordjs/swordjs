@@ -19,42 +19,43 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import assert from 'assert';
-import path from 'path';
-import fs from 'fs';
+'use strict'
+import assert from 'node:assert'
+import path from 'node:path'
+import fs from 'node:fs'
+import common from '../common'
 
-import tmpdir from '../common/tmpdir';
-tmpdir.refresh();
+import tmpdir from '../common/tmpdir'
+
+tmpdir.refresh()
 
 {
-  const file = path.join(tmpdir.path, 'write-end-test0.txt');
-  const stream = fs.createWriteStream(file);
-  stream.end();
-  stream.on('close', common.mustCall());
+  const file = path.join(tmpdir.path, 'write-end-test0.txt')
+  const stream = fs.createWriteStream(file)
+  stream.end()
+  stream.on('close', common.mustCall())
 }
 
 {
-  const file = path.join(tmpdir.path, 'write-end-test1.txt');
-  const stream = fs.createWriteStream(file);
-  stream.end('a\n', 'utf8');
-  stream.on('close', common.mustCall(function() {
-    const content = fs.readFileSync(file, 'utf8');
-    assert.strictEqual(content, 'a\n');
-  }));
+  const file = path.join(tmpdir.path, 'write-end-test1.txt')
+  const stream = fs.createWriteStream(file)
+  stream.end('a\n', 'utf8')
+  stream.on('close', common.mustCall(() => {
+    const content = fs.readFileSync(file, 'utf8')
+    assert.strictEqual(content, 'a\n')
+  }))
 }
 
 {
-  const file = path.join(tmpdir.path, 'write-end-test2.txt');
-  const stream = fs.createWriteStream(file);
-  stream.end();
+  const file = path.join(tmpdir.path, 'write-end-test2.txt')
+  const stream = fs.createWriteStream(file)
+  stream.end()
 
-  let calledOpen = false;
+  let calledOpen = false
   stream.on('open', () => {
-    calledOpen = true;
-  });
+    calledOpen = true
+  })
   stream.on('finish', common.mustCall(() => {
-    assert.strictEqual(calledOpen, true);
-  }));
+    assert.strictEqual(calledOpen, true)
+  }))
 }

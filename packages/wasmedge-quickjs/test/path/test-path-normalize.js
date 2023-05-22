@@ -1,8 +1,8 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import assert from 'assert';
-import path from 'path';
+import assert from 'node:assert'
+import path from 'node:path'
 
 /*
 assert.strictEqual(path.win32.normalize('./fixtures///b/../b/c.js'),
@@ -44,31 +44,31 @@ assert.strictEqual(
 assert.strictEqual(path.win32.normalize('foo/bar\\baz'), 'foo\\bar\\baz');
 */
 assert.strictEqual(path.posix.normalize('./fixtures///b/../b/c.js'),
-                   'fixtures/b/c.js');
-assert.strictEqual(path.posix.normalize('/foo/../../../bar'), '/bar');
-assert.strictEqual(path.posix.normalize('a//b//../b'), 'a/b');
-assert.strictEqual(path.posix.normalize('a//b//./c'), 'a/b/c');
-assert.strictEqual(path.posix.normalize('a//b//.'), 'a/b');
-assert.strictEqual(path.posix.normalize('/a/b/c/../../../x/y/z'), '/x/y/z');
-assert.strictEqual(path.posix.normalize('///..//./foo/.//bar'), '/foo/bar');
-assert.strictEqual(path.posix.normalize('bar/foo../../'), 'bar/');
-assert.strictEqual(path.posix.normalize('bar/foo../..'), 'bar');
-assert.strictEqual(path.posix.normalize('bar/foo../../baz'), 'bar/baz');
-assert.strictEqual(path.posix.normalize('bar/foo../'), 'bar/foo../');
-assert.strictEqual(path.posix.normalize('bar/foo..'), 'bar/foo..');
-assert.strictEqual(path.posix.normalize('../foo../../../bar'), '../../bar');
+  'fixtures/b/c.js')
+assert.strictEqual(path.posix.normalize('/foo/../../../bar'), '/bar')
+assert.strictEqual(path.posix.normalize('a//b//../b'), 'a/b')
+assert.strictEqual(path.posix.normalize('a//b//./c'), 'a/b/c')
+assert.strictEqual(path.posix.normalize('a//b//.'), 'a/b')
+assert.strictEqual(path.posix.normalize('/a/b/c/../../../x/y/z'), '/x/y/z')
+assert.strictEqual(path.posix.normalize('///..//./foo/.//bar'), '/foo/bar')
+assert.strictEqual(path.posix.normalize('bar/foo../../'), 'bar/')
+assert.strictEqual(path.posix.normalize('bar/foo../..'), 'bar')
+assert.strictEqual(path.posix.normalize('bar/foo../../baz'), 'bar/baz')
+assert.strictEqual(path.posix.normalize('bar/foo../'), 'bar/foo../')
+assert.strictEqual(path.posix.normalize('bar/foo..'), 'bar/foo..')
+assert.strictEqual(path.posix.normalize('../foo../../../bar'), '../../bar')
 assert.strictEqual(path.posix.normalize('../.../.././.../../../bar'),
-                   '../../bar');
+  '../../bar')
 assert.strictEqual(path.posix.normalize('../../../foo/../../../bar'),
-                   '../../../../../bar');
+  '../../../../../bar')
 assert.strictEqual(path.posix.normalize('../../../foo/../../../bar/../../'),
-                   '../../../../../../');
+  '../../../../../../')
 assert.strictEqual(
   path.posix.normalize('../foobar/barfoo/foo/../../../bar/../../'),
-  '../../'
-);
+  '../../',
+)
 assert.strictEqual(
   path.posix.normalize('../.../../foobar/../../../bar/../../baz'),
-  '../../../../baz'
-);
-assert.strictEqual(path.posix.normalize('foo/bar\\baz'), 'foo/bar\\baz');
+  '../../../../baz',
+)
+assert.strictEqual(path.posix.normalize('foo/bar\\baz'), 'foo/bar\\baz')

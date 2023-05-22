@@ -19,29 +19,29 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
+'use strict'
 
 // Test that unlink succeeds immediately after readFile completes.
 
-import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
+import assert from 'node:assert'
+import fs from 'node:fs'
+import path from 'node:path'
+import common from '../common'
 
-import tmpdir from '../common/tmpdir';
+import tmpdir from '../common/tmpdir'
 
-const fileName = path.resolve(tmpdir.path, 'test.bin');
-const buf = Buffer.alloc(512 * 1024, 42);
+const fileName = path.resolve(tmpdir.path, 'test.bin')
+const buf = Buffer.alloc(512 * 1024, 42)
 
-tmpdir.refresh();
+tmpdir.refresh()
 
-fs.writeFileSync(fileName, buf);
+fs.writeFileSync(fileName, buf)
 
 fs.readFile(fileName, common.mustSucceed((data) => {
-  assert.strictEqual(data.length, buf.length);
-  assert.strictEqual(buf[0], 42);
+  assert.strictEqual(data.length, buf.length)
+  assert.strictEqual(buf[0], 42)
 
   // Unlink should not throw. This is part of the test. It used to throw on
   // Windows due to a bug.
-  fs.unlinkSync(fileName);
-}));
+  fs.unlinkSync(fileName)
+}))

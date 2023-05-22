@@ -19,8 +19,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
+'use strict'
 
 // Make sure the deletion event gets reported in the following scenario:
 // 1. Watch a file.
@@ -32,17 +31,19 @@ import common from '../common';
 // stopped it from getting emitted.
 // https://github.com/nodejs/node-v0.x-archive/issues/4027
 
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path'
+import fs from 'node:fs'
+import common from '../common'
 
-import tmpdir from '../common/tmpdir';
-tmpdir.refresh();
+import tmpdir from '../common/tmpdir'
 
-const filename = path.join(tmpdir.path, 'watched');
-fs.writeFileSync(filename, 'quis custodiet ipsos custodes');
+tmpdir.refresh()
 
-fs.watchFile(filename, { interval: 50 }, common.mustCall(function(curr, prev) {
-  fs.unwatchFile(filename);
-}));
+const filename = path.join(tmpdir.path, 'watched')
+fs.writeFileSync(filename, 'quis custodiet ipsos custodes')
 
-fs.unlinkSync(filename);
+fs.watchFile(filename, { interval: 50 }, common.mustCall((curr, prev) => {
+  fs.unwatchFile(filename)
+}))
+
+fs.unlinkSync(filename)

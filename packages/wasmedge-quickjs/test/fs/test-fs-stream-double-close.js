@@ -19,36 +19,37 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import fs from 'fs';
+'use strict'
+import fs from 'node:fs'
+import common from '../common'
 
-import tmpdir from '../common/tmpdir';
-tmpdir.refresh();
+import tmpdir from '../common/tmpdir'
 
-test1(fs.createReadStream(__filename));
-test2(fs.createReadStream(__filename));
-test3(fs.createReadStream(__filename));
+tmpdir.refresh()
 
-test1(fs.createWriteStream(`${tmpdir.path}/dummy1`));
-test2(fs.createWriteStream(`${tmpdir.path}/dummy2`));
-test3(fs.createWriteStream(`${tmpdir.path}/dummy3`));
+test1(fs.createReadStream(__filename))
+test2(fs.createReadStream(__filename))
+test3(fs.createReadStream(__filename))
+
+test1(fs.createWriteStream(`${tmpdir.path}/dummy1`))
+test2(fs.createWriteStream(`${tmpdir.path}/dummy2`))
+test3(fs.createWriteStream(`${tmpdir.path}/dummy3`))
 
 function test1(stream) {
-  stream.destroy();
-  stream.destroy();
+  stream.destroy()
+  stream.destroy()
 }
 
 function test2(stream) {
-  stream.destroy();
-  stream.on('open', common.mustCall(function(fd) {
-    stream.destroy();
-  }));
+  stream.destroy()
+  stream.on('open', common.mustCall((fd) => {
+    stream.destroy()
+  }))
 }
 
 function test3(stream) {
-  stream.on('open', common.mustCall(function(fd) {
-    stream.destroy();
-    stream.destroy();
-  }));
+  stream.on('open', common.mustCall((fd) => {
+    stream.destroy()
+    stream.destroy()
+  }))
 }

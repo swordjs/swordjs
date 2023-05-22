@@ -1,13 +1,14 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs'
+import path from 'node:path'
 
-import tmpdir from '../common/tmpdir';
-tmpdir.refresh();
+import tmpdir from '../common/tmpdir'
 
-const s = fs.createWriteStream(path.join(tmpdir.path, 'nocallback'));
+tmpdir.refresh()
 
-s.end('hello world');
-s.close();
+const s = fs.createWriteStream(path.join(tmpdir.path, 'nocallback'))
+
+s.end('hello world')
+s.close()

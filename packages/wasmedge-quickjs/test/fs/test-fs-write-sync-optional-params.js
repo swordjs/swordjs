@@ -1,51 +1,53 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
 
-'use strict';
-
-import common from '../common';
+'use strict'
 
 // This test ensures that fs.writeSync accepts "named parameters" object
 // and doesn't interpret objects as strings
 
-import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
-import tmpdir from '../common/tmpdir';
+import assert from 'node:assert'
+import fs from 'node:fs'
+import path from 'node:path'
+import common from '../common'
+import tmpdir from '../common/tmpdir'
 
-tmpdir.refresh();
+tmpdir.refresh()
 
-const dest = path.resolve(tmpdir.path, 'tmp.txt');
-const buffer = Buffer.from('zyx');
+const dest = path.resolve(tmpdir.path, 'tmp.txt')
+const buffer = Buffer.from('zyx')
 
 function testInvalid(dest, expectedCode, ...bufferAndOptions) {
-  if (bufferAndOptions.length >= 2) {
-    bufferAndOptions[1] = common.mustNotMutateObjectDeep(bufferAndOptions[1]);
-  }
-  let fd;
+  if (bufferAndOptions.length >= 2)
+    bufferAndOptions[1] = common.mustNotMutateObjectDeep(bufferAndOptions[1])
+
+  let fd
   try {
-    fd = fs.openSync(dest, 'w+');
+    fd = fs.openSync(dest, 'w+')
     assert.throws(
       () => fs.writeSync(fd, ...bufferAndOptions),
-      { code: expectedCode });
-  } finally {
-    if (fd != null) fs.closeSync(fd);
+      { code: expectedCode })
+  }
+  finally {
+    if (fd != null)
+      fs.closeSync(fd)
   }
 }
 
 function testValid(dest, buffer, options) {
-  const length = options?.length;
-  let fd;
+  const length = options?.length
+  let fd
   try {
-    fd = fs.openSync(dest, 'w+');
-    const bytesWritten = fs.writeSync(fd, buffer, options);
-    const bytesRead = fs.readSync(fd, buffer, options);
+    fd = fs.openSync(dest, 'w+')
+    const bytesWritten = fs.writeSync(fd, buffer, options)
+    const bytesRead = fs.readSync(fd, buffer, options)
 
-    assert.ok(bytesWritten >= bytesRead);
-    if (length !== undefined && length !== null) {
-      assert.strictEqual(bytesWritten, length);
-    }
-  } finally {
-    if (fd != null) fs.closeSync(fd);
+    assert.ok(bytesWritten >= bytesRead)
+    if (length !== undefined && length !== null)
+      assert.strictEqual(bytesWritten, length)
+  }
+  finally {
+    if (fd != null)
+      fs.closeSync(fd)
   }
 }
 
@@ -63,23 +65,22 @@ function testValid(dest, buffer, options) {
     Promise.resolve(new Uint8Array(1)),
     new Date(),
     new String('notPrimitive'),
-    { toString() { return 'amObject'; } },
-    { [Symbol.toPrimitive]: (hint) => 'amObject' },
-  ]) {
-    testInvalid(dest, 'ERR_INVALID_ARG_TYPE', common.mustNotMutateObjectDeep(badBuffer));
-  }
+    { toString() { return 'amObject' } },
+    { [Symbol.toPrimitive]: hint => 'amObject' },
+  ])
+    testInvalid(dest, 'ERR_INVALID_ARG_TYPE', common.mustNotMutateObjectDeep(badBuffer))
 
   // First argument (buffer or string) is mandatory
-  testInvalid(dest, 'ERR_INVALID_ARG_TYPE');
+  testInvalid(dest, 'ERR_INVALID_ARG_TYPE')
 
   // Various invalid options
-  testInvalid(dest, 'ERR_OUT_OF_RANGE', buffer, { length: 5 });
-  testInvalid(dest, 'ERR_OUT_OF_RANGE', buffer, { offset: 5 });
-  testInvalid(dest, 'ERR_OUT_OF_RANGE', buffer, { length: 1, offset: 3 });
-  testInvalid(dest, 'ERR_OUT_OF_RANGE', buffer, { length: -1 });
-  testInvalid(dest, 'ERR_OUT_OF_RANGE', buffer, { offset: -1 });
-  testInvalid(dest, 'ERR_INVALID_ARG_TYPE', buffer, { offset: false });
-  testInvalid(dest, 'ERR_INVALID_ARG_TYPE', buffer, { offset: true });
+  testInvalid(dest, 'ERR_OUT_OF_RANGE', buffer, { length: 5 })
+  testInvalid(dest, 'ERR_OUT_OF_RANGE', buffer, { offset: 5 })
+  testInvalid(dest, 'ERR_OUT_OF_RANGE', buffer, { length: 1, offset: 3 })
+  testInvalid(dest, 'ERR_OUT_OF_RANGE', buffer, { length: -1 })
+  testInvalid(dest, 'ERR_OUT_OF_RANGE', buffer, { offset: -1 })
+  testInvalid(dest, 'ERR_INVALID_ARG_TYPE', buffer, { offset: false })
+  testInvalid(dest, 'ERR_INVALID_ARG_TYPE', buffer, { offset: true })
 
   // Test compatibility with fs.readSync counterpart with reused options
   for (const options of [
@@ -93,7 +94,6 @@ function testValid(dest, buffer, options) {
     { length: null },
     { position: null },
     { offset: 1 },
-  ]) {
-    testValid(dest, buffer, common.mustNotMutateObjectDeep(options));
-  }
+  ])
+    testValid(dest, buffer, common.mustNotMutateObjectDeep(options))
 }

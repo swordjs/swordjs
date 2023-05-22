@@ -1,12 +1,12 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import assert from 'assert';
-import path from 'path';
+import assert from 'node:assert'
+import path from 'node:path'
 
-const __filename = args[0];
+const __filename = args[0]
 
-const failures = [];
+const failures = []
 const slashRE = /\//g;
 
 [
@@ -55,31 +55,32 @@ const slashRE = /\//g;
   ['file.//', '.'],
 ].forEach((test) => {
   const expected = test[1];
-  [path.posix.extname, /*path.win32.extname*/].forEach((extname) => {
-    let input = test[0];
-    let os;
-    if (false /*extname === path.win32.extname*/) {
-      input = input.replace(slashRE, '\\');
-      os = 'win32';
-    } else {
-      os = 'posix';
+  [path.posix.extname].forEach((extname) => {
+    let input = test[0]
+    let os
+    if (false /* extname === path.win32.extname */) {
+      input = input.replace(slashRE, '\\')
+      os = 'win32'
     }
-    const actual = extname(input);
+    else {
+      os = 'posix'
+    }
+    const actual = extname(input)
     const message = `path.${os}.extname(${JSON.stringify(input)})\n  expect=${
-      JSON.stringify(expected)}\n  actual=${JSON.stringify(actual)}`;
+      JSON.stringify(expected)}\n  actual=${JSON.stringify(actual)}`
     if (actual !== expected)
-      failures.push(`\n${message}`);
-  });
-  /*{
+      failures.push(`\n${message}`)
+  })
+  /* {
     const input = `C:${test[0].replace(slashRE, '\\')}`;
     const actual = path.win32.extname(input);
     const message = `path.win32.extname(${JSON.stringify(input)})\n  expect=${
       JSON.stringify(expected)}\n  actual=${JSON.stringify(actual)}`;
     if (actual !== expected)
       failures.push(`\n${message}`);
-  }*/
-});
-assert.strictEqual(failures.length, 0, failures.join(''));
+  } */
+})
+assert.strictEqual(failures.length, 0, failures.join(''))
 
 /*
 // On Windows, backslash is a path separator.
@@ -94,11 +95,11 @@ assert.strictEqual(path.win32.extname('file.\\\\'), '.');
 */
 
 // On *nix, backslash is a valid name component like any other character.
-assert.strictEqual(path.posix.extname('.\\'), '');
-assert.strictEqual(path.posix.extname('..\\'), '.\\');
-assert.strictEqual(path.posix.extname('file.ext\\'), '.ext\\');
-assert.strictEqual(path.posix.extname('file.ext\\\\'), '.ext\\\\');
-assert.strictEqual(path.posix.extname('file\\'), '');
-assert.strictEqual(path.posix.extname('file\\\\'), '');
-assert.strictEqual(path.posix.extname('file.\\'), '.\\');
-assert.strictEqual(path.posix.extname('file.\\\\'), '.\\\\');
+assert.strictEqual(path.posix.extname('.\\'), '')
+assert.strictEqual(path.posix.extname('..\\'), '.\\')
+assert.strictEqual(path.posix.extname('file.ext\\'), '.ext\\')
+assert.strictEqual(path.posix.extname('file.ext\\\\'), '.ext\\\\')
+assert.strictEqual(path.posix.extname('file\\'), '')
+assert.strictEqual(path.posix.extname('file\\\\'), '')
+assert.strictEqual(path.posix.extname('file.\\'), '.\\')
+assert.strictEqual(path.posix.extname('file.\\\\'), '.\\\\')

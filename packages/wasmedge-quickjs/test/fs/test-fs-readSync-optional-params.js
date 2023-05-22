@@ -1,23 +1,26 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import { mustNotMutateObjectDeep } from '../common';
-import fixtures from '../common/fixtures';
-import fs from 'fs';
-import assert from 'assert';
-const filepath = fixtures.path('x.txt');
+import fs from 'node:fs'
+import assert from 'node:assert'
+import { mustNotMutateObjectDeep } from '../common'
+import fixtures from '../common/fixtures'
 
-const expected = Buffer.from('xyz\n');
+const filepath = fixtures.path('x.txt')
+
+const expected = Buffer.from('xyz\n')
 
 function runTest(defaultBuffer, options) {
-  let fd;
+  let fd
   try {
-    fd = fs.openSync(filepath, 'r');
-    const result = fs.readSync(fd, defaultBuffer, options);
-    assert.strictEqual(result, expected.length);
-    assert.deepStrictEqual(defaultBuffer, expected);
-  } finally {
-    if (fd != null) fs.closeSync(fd);
+    fd = fs.openSync(filepath, 'r')
+    const result = fs.readSync(fd, defaultBuffer, options)
+    assert.strictEqual(result, expected.length)
+    assert.deepStrictEqual(defaultBuffer, expected)
+  }
+  finally {
+    if (fd != null)
+      fs.closeSync(fd)
   }
 }
 
@@ -53,6 +56,5 @@ for (const options of [
   '4'.repeat(expected.length),
   new String('4444'),
   [4, 4, 4, 4],
-]) {
-  runTest(Buffer.allocUnsafe(expected.length), mustNotMutateObjectDeep(options));
-}
+])
+  runTest(Buffer.allocUnsafe(expected.length), mustNotMutateObjectDeep(options))

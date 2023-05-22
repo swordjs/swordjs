@@ -19,11 +19,13 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
+'use strict'
 
-import util from 'util';
-import fs from 'fs';
-import { join } from 'path';
+import util from 'node:util'
+import fs from 'node:fs'
+import { join } from 'node:path'
+
+import tmpdir from '../common/tmpdir'
 
 let data = [
   '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcH',
@@ -42,14 +44,12 @@ let data = [
   '1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDhfBUFl/wk',
   'OmPqKJJZw3aiZFBw4z93jnkkc9u9dj8XLfSI/EBt7DTo7ea2Ox5YXVo5FC7g',
   'Tjq24nJPXNVtO0KATRvNHCIg3zoWJWQHqp+o4pun+EtJ0zxBq8mnLJa2d1L5',
-  '0NvnKRjJBUE5PAx3NYxxUY0pRtvYHSc5Ka2X9d7H/9k='];
+  '0NvnKRjJBUE5PAx3NYxxUY0pRtvYHSc5Ka2X9d7H/9k=']
 
-data = data.join('\n');
+data = data.join('\n')
+tmpdir.refresh()
 
-import tmpdir from '../common/tmpdir';
-tmpdir.refresh();
+const buf = Buffer.from(data, 'base64')
+fs.writeFileSync(join(tmpdir.path, 'test.jpg'), buf)
 
-const buf = Buffer.from(data, 'base64');
-fs.writeFileSync(join(tmpdir.path, 'test.jpg'), buf);
-
-util.log('Done!');
+util.log('Done!')

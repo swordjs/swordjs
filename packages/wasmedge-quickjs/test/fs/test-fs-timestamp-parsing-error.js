@@ -1,30 +1,30 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import assert from 'assert';
-import fs from 'fs';
+import assert from 'node:assert'
+import fs from 'node:fs';
 
 [Infinity, -Infinity, NaN].forEach((input) => {
   assert.throws(
     () => {
-      fs._toUnixTimestamp(input);
+      fs._toUnixTimestamp(input)
     },
     {
       code: 'ERR_INVALID_ARG_TYPE',
-      name: 'TypeError'
-    });
-});
+      name: 'TypeError',
+    })
+})
 
 assert.throws(
   () => {
-    fs._toUnixTimestamp({});
+    fs._toUnixTimestamp({})
   },
   {
     code: 'ERR_INVALID_ARG_TYPE',
-    name: 'TypeError'
-  });
+    name: 'TypeError',
+  })
 
-const okInputs = [1, -1, '1', '-1', Date.now()];
+const okInputs = [1, -1, '1', '-1', Date.now()]
 okInputs.forEach((input) => {
-  fs._toUnixTimestamp(input);
-});
+  fs._toUnixTimestamp(input)
+})

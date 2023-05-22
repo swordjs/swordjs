@@ -1,14 +1,11 @@
-import * as os from 'os';
-import * as std from 'std';
-import * as process from 'process'
+import * as process from 'node:process'
 
-args = args.slice(1);
-print('Hello', ...args);
+args = args.slice(1)
+print('Hello', ...args)
 setTimeout(() => {
-    print('timeout 2s');
-}, 2000);
+  print('timeout 2s')
+}, 2000)
 
-let env = process.env
-for(var k in env){
-    print(k,'=',env[k])
-}
+const env = process.env
+for (const k in env)
+  print(k, '=', env[k])

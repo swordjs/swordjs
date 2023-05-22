@@ -19,72 +19,73 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import fixtures from '../common/fixtures';
+'use strict'
+
+import assert from 'node:assert'
+import path from 'node:path'
+import fs from 'node:fs'
+import fixtures from '../common/fixtures'
+import common from '../common'
+
+import tmpdir from '../common/tmpdir'
+
 if (!common.canCreateSymLink())
-  common.skip('insufficient privileges');
+  common.skip('insufficient privileges')
 
-import assert from 'assert';
-import path from 'path';
-import fs from 'fs';
-
-let linkTime;
-let fileTime;
-
-import tmpdir from '../common/tmpdir';
-tmpdir.refresh();
+let linkTime
+let fileTime
+tmpdir.refresh()
 
 // Test creating and reading symbolic link
-const linkData = fixtures.path('/cycles/root.js');
-const linkPath = path.join(tmpdir.path, 'symlink1.js');
+const linkData = fixtures.path('/cycles/root.js')
+const linkPath = path.join(tmpdir.path, 'symlink1.js')
 
 fs.symlink(linkData, linkPath, common.mustSucceed(() => {
   fs.lstat(linkPath, common.mustSucceed((stats) => {
-    linkTime = stats.mtime.getTime();
-  }));
+    linkTime = stats.mtime.getTime()
+  }))
 
   fs.stat(linkPath, common.mustSucceed((stats) => {
-    fileTime = stats.mtime.getTime();
-  }));
+    fileTime = stats.mtime.getTime()
+  }))
 
-  /*fs.readlink(linkPath, common.mustSucceed((destination) => {
+  /* fs.readlink(linkPath, common.mustSucceed((destination) => {
     assert.strictEqual(destination, linkData);
-  }));*/
-}));
+  })); */
+}))
 
 // Test invalid symlink
 {
-  const linkData = fixtures.path('/not/exists/file');
-  const linkPath = path.join(tmpdir.path, 'symlink2.js');
+  const linkData = fixtures.path('/not/exists/file')
+  const linkPath = path.join(tmpdir.path, 'symlink2.js')
 
   fs.symlink(linkData, linkPath, common.mustSucceed(() => {
-    assert(!fs.existsSync(linkPath));
-  }));
+    assert(!fs.existsSync(linkPath))
+  }))
 }
 
 [false, 1, {}, [], null, undefined].forEach((input) => {
   const errObj = {
     code: 'ERR_INVALID_ARG_TYPE',
     name: 'TypeError',
-    message: /target|path/
-  };
-  assert.throws(() => fs.symlink(input, '', common.mustNotCall()), errObj);
-  assert.throws(() => fs.symlinkSync(input, ''), errObj);
+    message: /target|path/,
+  }
+  assert.throws(() => fs.symlink(input, '', common.mustNotCall()), errObj)
+  assert.throws(() => fs.symlinkSync(input, ''), errObj)
 
-  assert.throws(() => fs.symlink('', input, common.mustNotCall()), errObj);
-  assert.throws(() => fs.symlinkSync('', input), errObj);
-});
+  assert.throws(() => fs.symlink('', input, common.mustNotCall()), errObj)
+  assert.throws(() => fs.symlinkSync('', input), errObj)
+})
 
 const errObj = {
   code: 'ERR_FS_INVALID_SYMLINK_TYPE',
   name: 'Error',
   message:
-    'Symlink type must be one of "dir", "file", or "junction". Received "🍏"'
-};
-assert.throws(() => fs.symlink('', '', '🍏', common.mustNotCall()), errObj);
-assert.throws(() => fs.symlinkSync('', '', '🍏'), errObj);
+    'Symlink type must be one of "dir", "file", or "junction". Received "🍏"',
+}
+assert.throws(() => fs.symlink('', '', '🍏', common.mustNotCall()), errObj)
+assert.throws(() => fs.symlinkSync('', '', '🍏'), errObj)
 
 globalThis.commonExitCheck = () => {
-  assert.notStrictEqual(linkTime, fileTime);
-};
+  assert.notStrictEqual(linkTime, fileTime)
+}

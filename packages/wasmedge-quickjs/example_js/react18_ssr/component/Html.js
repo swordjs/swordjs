@@ -8,7 +8,6 @@
 import React from 'react'
 
 export default function Html({ assets, children, title }) {
-
   return (
     <html lang="en">
       <head>
@@ -20,7 +19,7 @@ export default function Html({ assets, children, title }) {
       <body>
         <noscript
           dangerouslySetInnerHTML={{
-            __html: `<b>Enable JavaScript to run this app.</b>`,
+            __html: '<b>Enable JavaScript to run this app.</b>',
           }}
         />
         {children}
@@ -31,5 +30,5 @@ export default function Html({ assets, children, title }) {
         />
       </body>
     </html>
-  );
+  )
 }

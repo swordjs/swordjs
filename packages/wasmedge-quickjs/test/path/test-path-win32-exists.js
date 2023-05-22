@@ -1,6 +1,6 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import assert from 'assert';
+import assert from 'node:assert'
 
-assert.strictEqual(require('path/win32'), require('path').win32);
+assert.strictEqual(require('node:path/win32'), require('node:path').win32)

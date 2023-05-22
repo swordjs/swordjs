@@ -1,86 +1,87 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
 
-'use strict';
+'use strict'
 
-import common from '../common';
-import assert from 'assert';
-import path from 'path';
-import fs from 'fs';
-import tmpdir from '../common/tmpdir';
+import assert from 'node:assert'
+import path from 'node:path'
+import fs from 'node:fs'
+import common from '../common'
+import tmpdir from '../common/tmpdir'
 
-tmpdir.refresh();
+tmpdir.refresh()
 
-const expected = 'ümlaut. Лорем 運務ホソモ指及 आपको करने विकास 紙読決多密所 أضف';
+const expected = 'ümlaut. Лорем 運務ホソモ指及 आपको करने विकास 紙読決多密所 أضف'
 
-let cnt = 0;
-const getFileName = () => path.join(tmpdir.path, `readv_${++cnt}.txt`);
-const exptectedBuff = Buffer.from(expected);
+let cnt = 0
+function getFileName() {
+  return path.join(tmpdir.path, `readv_${++cnt}.txt`)
+}
+const exptectedBuff = Buffer.from(expected)
 
-const allocateEmptyBuffers = (combinedLength) => {
-  const bufferArr = [];
+function allocateEmptyBuffers(combinedLength) {
+  const bufferArr = []
   // Allocate two buffers, each half the size of exptectedBuff
-  bufferArr[0] = Buffer.alloc(Math.floor(combinedLength / 2));
-  bufferArr[1] = Buffer.alloc(combinedLength - bufferArr[0].length);
+  bufferArr[0] = Buffer.alloc(Math.floor(combinedLength / 2))
+  bufferArr[1] = Buffer.alloc(combinedLength - bufferArr[0].length)
 
-  return bufferArr;
-};
+  return bufferArr
+}
 
-const getCallback = (fd, bufferArr) => {
+function getCallback(fd, bufferArr) {
   return common.mustSucceed((bytesRead, buffers) => {
-    assert.deepStrictEqual(bufferArr, buffers);
-    const expectedLength = exptectedBuff.length;
-    assert.deepStrictEqual(bytesRead, expectedLength);
-    fs.closeSync(fd);
+    assert.deepStrictEqual(bufferArr, buffers)
+    const expectedLength = exptectedBuff.length
+    assert.deepStrictEqual(bytesRead, expectedLength)
+    fs.closeSync(fd)
 
-    assert(Buffer.concat(bufferArr).equals(exptectedBuff));
-  });
-};
+    assert(Buffer.concat(bufferArr).equals(exptectedBuff))
+  })
+}
 
 // fs.readv with array of buffers with all parameters
 {
-  const filename = getFileName();
-  const fd = fs.openSync(filename, 'w+');
-  fs.writeSync(fd, exptectedBuff);
+  const filename = getFileName()
+  const fd = fs.openSync(filename, 'w+')
+  fs.writeSync(fd, exptectedBuff)
 
-  const bufferArr = allocateEmptyBuffers(exptectedBuff.length);
-  const callback = getCallback(fd, bufferArr);
+  const bufferArr = allocateEmptyBuffers(exptectedBuff.length)
+  const callback = getCallback(fd, bufferArr)
 
-  fs.readv(fd, bufferArr, 0, callback);
+  fs.readv(fd, bufferArr, 0, callback)
 }
 
 // fs.readv with array of buffers without position
 {
-  const filename = getFileName();
-  fs.writeFileSync(filename, exptectedBuff);
-  const fd = fs.openSync(filename, 'r');
+  const filename = getFileName()
+  fs.writeFileSync(filename, exptectedBuff)
+  const fd = fs.openSync(filename, 'r')
 
-  const bufferArr = allocateEmptyBuffers(exptectedBuff.length);
-  const callback = getCallback(fd, bufferArr);
+  const bufferArr = allocateEmptyBuffers(exptectedBuff.length)
+  const callback = getCallback(fd, bufferArr)
 
-  fs.readv(fd, bufferArr, callback);
+  fs.readv(fd, bufferArr, callback)
 }
 
 /**
  * Testing with incorrect arguments
  */
-const wrongInputs = [false, 'test', {}, [{}], ['sdf'], null, undefined];
+const wrongInputs = [false, 'test', {}, [{}], ['sdf'], null, undefined]
 
 {
-  const filename = getFileName(2);
-  fs.writeFileSync(filename, exptectedBuff);
-  const fd = fs.openSync(filename, 'r');
-
+  const filename = getFileName(2)
+  fs.writeFileSync(filename, exptectedBuff)
+  const fd = fs.openSync(filename, 'r')
 
   wrongInputs.forEach((wrongInput) => {
     assert.throws(
       () => fs.readv(fd, wrongInput, null, common.mustNotCall()), {
         code: 'ERR_INVALID_ARG_TYPE',
-        name: 'TypeError'
-      }
-    );
-  });
+        name: 'TypeError',
+      },
+    )
+  })
 
-  fs.closeSync(fd);
+  fs.closeSync(fd)
 }
 
 {
@@ -90,8 +91,8 @@ const wrongInputs = [false, 'test', {}, [{}], ['sdf'], null, undefined];
       () => fs.readv(wrongInput, common.mustNotCall()),
       {
         code: 'ERR_INVALID_ARG_TYPE',
-        name: 'TypeError'
-      }
-    );
-  });
+        name: 'TypeError',
+      },
+    )
+  })
 }

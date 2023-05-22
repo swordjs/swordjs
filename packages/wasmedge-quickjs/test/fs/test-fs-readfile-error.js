@@ -19,49 +19,49 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import fs from 'fs';
+'use strict'
+import fs from 'node:fs'
+
+import assert from 'node:assert'
+import { exec } from 'node:child_process'
+import common from '../common'
+import fixtures from '../common/fixtures'
 
 // Test that fs.readFile fails correctly on a non-existent file.
 
 // `fs.readFile('/')` does not fail on AIX and FreeBSD because you can open
 // and read the directory there.
 if (common.isAIX || common.isFreeBSD)
-  common.skip('platform not supported.');
-
-import assert from 'assert';
-import { exec } from 'child_process';
-import fixtures from '../common/fixtures';
+  common.skip('platform not supported.')
 
 function test(env, cb) {
-  const filename = fixtures.path('test-fs-readfile-error.js');
-  const execPath = `"${process.execPath}" "${filename}"`;
-  const options = { env: { ...process.env, ...env } };
+  const filename = fixtures.path('test-fs-readfile-error.js')
+  const execPath = `"${process.execPath}" "${filename}"`
+  const options = { env: { ...process.env, ...env } }
   exec(execPath, options, (err, stdout, stderr) => {
-    assert(err);
-    assert.strictEqual(stdout, '');
-    assert.notStrictEqual(stderr, '');
-    cb(String(stderr));
-  });
+    assert(err)
+    assert.strictEqual(stdout, '')
+    assert.notStrictEqual(stderr, '')
+    cb(String(stderr))
+  })
 }
 
 test({ NODE_DEBUG: '' }, common.mustCall((data) => {
-  assert.match(data, /EISDIR/);
-  assert.match(data, /test-fs-readfile-error/);
-}));
+  assert.match(data, /EISDIR/)
+  assert.match(data, /test-fs-readfile-error/)
+}))
 
 test({ NODE_DEBUG: 'fs' }, common.mustCall((data) => {
-  assert.match(data, /EISDIR/);
-  assert.match(data, /test-fs-readfile-error/);
-}));
+  assert.match(data, /EISDIR/)
+  assert.match(data, /test-fs-readfile-error/)
+}))
 
 assert.throws(
-  () => { fs.readFile(() => {}, common.mustNotCall()); },
+  () => { fs.readFile(() => {}, common.mustNotCall()) },
   {
     code: 'ERR_INVALID_ARG_TYPE',
-    message: 'The "path" argument must be of type string or an instance of ' +
-             'Buffer or URL. Received type function ([Function (anonymous)])',
-    name: 'TypeError'
-  }
-);
+    message: 'The "path" argument must be of type string or an instance of '
+             + 'Buffer or URL. Received type function ([Function (anonymous)])',
+    name: 'TypeError',
+  },
+)

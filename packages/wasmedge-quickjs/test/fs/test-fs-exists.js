@@ -19,42 +19,42 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import assert from 'assert';
-import fs from 'fs';
-import { URL } from "url"
+'use strict'
+import assert from 'node:assert'
+import fs from 'node:fs'
+import { URL } from 'node:url'
+import common from '../common'
 
-let __filename = args[0];
+const __filename = args[0]
 
-const f = __filename;
+const f = __filename
 
-assert.throws(() => fs.exists(f), { code: 'ERR_INVALID_ARG_TYPE' });
-assert.throws(() => fs.exists(), { code: 'ERR_INVALID_ARG_TYPE' });
-assert.throws(() => fs.exists(f, {}), { code: 'ERR_INVALID_ARG_TYPE' });
+assert.throws(() => fs.exists(f), { code: 'ERR_INVALID_ARG_TYPE' })
+assert.throws(() => fs.exists(), { code: 'ERR_INVALID_ARG_TYPE' })
+assert.throws(() => fs.exists(f, {}), { code: 'ERR_INVALID_ARG_TYPE' })
 
-fs.exists(f, common.mustCall(function(y) {
-  assert.strictEqual(y, true);
-}));
+fs.exists(f, common.mustCall((y) => {
+  assert.strictEqual(y, true)
+}))
 
-fs.exists(`${f}-NO`, common.mustCall(function(y) {
-  assert.strictEqual(y, false);
-}));
+fs.exists(`${f}-NO`, common.mustCall((y) => {
+  assert.strictEqual(y, false)
+}))
 
 // If the path is invalid, fs.exists will still invoke the callback with false
 // instead of throwing errors
-fs.exists(new URL('https://foo'), common.mustCall(function(y) {
-  assert.strictEqual(y, false);
-}));
+fs.exists(new URL('https://foo'), common.mustCall((y) => {
+  assert.strictEqual(y, false)
+}))
 
-fs.exists({}, common.mustCall(function(y) {
-  assert.strictEqual(y, false);
-}));
+fs.exists({}, common.mustCall((y) => {
+  assert.strictEqual(y, false)
+}))
 
-assert(fs.existsSync(f));
-assert(!fs.existsSync(`${f}-NO`));
+assert(fs.existsSync(f))
+assert(!fs.existsSync(`${f}-NO`))
 
 // fs.existsSync() never throws
-assert(!fs.existsSync());
-assert(!fs.existsSync({}));
-assert(!fs.existsSync(new URL('https://foo')));
+assert(!fs.existsSync())
+assert(!fs.existsSync({}))
+assert(!fs.existsSync(new URL('https://foo')))

@@ -26,31 +26,31 @@
 // - https://github.com/nodejs/node/blob/master/src/util.h
 
 /**
- * 
- * @param {string} msg 
+ *
+ * @param {string} msg
  * @return {never}
  */
 export function notImplemented(msg) {
-    const message = msg ? `Not implemented: ${msg}` : "Not implemented";
-    throw new Error(message);
+  const message = msg ? `Not implemented: ${msg}` : 'Not implemented'
+  throw new Error(message)
 }
 
 /**
- * 
- * @param {number} _fd 
+ *
+ * @param {number} _fd
  * @return {string}
  */
 export function guessHandleType(_fd) {
-    notImplemented("util.guessHandleType");
+  notImplemented('util.guessHandleType')
 }
 
-export const ALL_PROPERTIES = 0;
-export const ONLY_WRITABLE = 1;
-export const ONLY_ENUMERABLE = 2;
-export const ONLY_CONFIGURABLE = 4;
-export const ONLY_ENUM_WRITABLE = 6;
-export const SKIP_STRINGS = 8;
-export const SKIP_SYMBOLS = 16;
+export const ALL_PROPERTIES = 0
+export const ONLY_WRITABLE = 1
+export const ONLY_ENUMERABLE = 2
+export const ONLY_CONFIGURABLE = 4
+export const ONLY_ENUM_WRITABLE = 6
+export const SKIP_STRINGS = 8
+export const SKIP_SYMBOLS = 16
 
 /**
  * Efficiently determine whether the provided property key is numeric
@@ -61,96 +61,93 @@ export const SKIP_SYMBOLS = 16;
  * Otherwise, only returns true for strings that consist only of positive integers.
  *
  * Results are cached.
- * 
+ *
  * @type {Record<string, boolean>}
  */
-const isNumericLookup = {};
+const isNumericLookup = {}
 
 /**
- * 
- * @param {unknown} value 
+ *
+ * @param {unknown} value
  * @returns {boolean}
  */
 export function isArrayIndex(value) {
-    switch (typeof value) {
-        case "number":
-            return value >= 0 && (value | 0) === value;
-        case "string": {
-            const result = isNumericLookup[value];
-            if (result !== void 0) {
-                return result;
-            }
-            const length = value.length;
-            if (length === 0) {
-                return isNumericLookup[value] = false;
-            }
-            let ch = 0;
-            let i = 0;
-            for (; i < length; ++i) {
-                ch = value.charCodeAt(i);
-                if (
-                    i === 0 && ch === 0x30 && length > 1 /* must not start with 0 */ ||
-                    ch < 0x30 /* 0 */ || ch > 0x39 /* 9 */
-                ) {
-                    return isNumericLookup[value] = false;
-                }
-            }
-            return isNumericLookup[value] = true;
-        }
-        default:
-            return false;
+  switch (typeof value) {
+    case 'number':
+      return value >= 0 && (value | 0) === value
+    case 'string': {
+      const result = isNumericLookup[value]
+      if (result !== void 0)
+        return result
+
+      const length = value.length
+      if (length === 0)
+        return isNumericLookup[value] = false
+
+      let ch = 0
+      let i = 0
+      for (; i < length; ++i) {
+        ch = value.charCodeAt(i)
+        if (
+          i === 0 && ch === 0x30 && length > 1
+                    || /* must not start with 0 */ ch < 0x30 /* 0 */ || ch > 0x39 /* 9 */
+        )
+          return isNumericLookup[value] = false
+      }
+      return isNumericLookup[value] = true
     }
+    default:
+      return false
+  }
 }
 
 /**
- * 
- * @param {object} obj 
- * @param {number} filter 
+ *
+ * @param {object} obj
+ * @param {number} filter
  * @returns {(string | symbol)[]}
  */
 export function getOwnNonIndexProperties(
-    // deno-lint-ignore ban-types
-    obj,
-    filter,
+  // deno-lint-ignore ban-types
+  obj,
+  filter,
 ) {
-    let allProperties = [
-        ...Object.getOwnPropertyNames(obj),
-        ...Object.getOwnPropertySymbols(obj),
-    ];
+  let allProperties = [
+    ...Object.getOwnPropertyNames(obj),
+    ...Object.getOwnPropertySymbols(obj),
+  ]
 
-    if (Array.isArray(obj)) {
-        allProperties = allProperties.filter((k) => !isArrayIndex(k));
-    }
+  if (Array.isArray(obj))
+    allProperties = allProperties.filter(k => !isArrayIndex(k))
 
-    if (filter === ALL_PROPERTIES) {
-        return allProperties;
-    }
+  if (filter === ALL_PROPERTIES)
+    return allProperties
 
-    /**
+  /**
      * @type {(string | symbol)[]}
      */
-    const result = [];
-    for (const key of allProperties) {
-        const desc = Object.getOwnPropertyDescriptor(obj, key);
-        if (desc === undefined) {
-            continue;
-        }
-        if (filter & ONLY_WRITABLE && !desc.writable) {
-            continue;
-        }
-        if (filter & ONLY_ENUMERABLE && !desc.enumerable) {
-            continue;
-        }
-        if (filter & ONLY_CONFIGURABLE && !desc.configurable) {
-            continue;
-        }
-        if (filter & SKIP_STRINGS && typeof key === "string") {
-            continue;
-        }
-        if (filter & SKIP_SYMBOLS && typeof key === "symbol") {
-            continue;
-        }
-        result.push(key);
-    }
-    return result;
+  const result = []
+  for (const key of allProperties) {
+    const desc = Object.getOwnPropertyDescriptor(obj, key)
+    if (desc === undefined)
+      continue
+
+    if (filter & ONLY_WRITABLE && !desc.writable)
+      continue
+
+    if (filter & ONLY_ENUMERABLE && !desc.enumerable)
+      continue
+
+    if (filter & ONLY_CONFIGURABLE && !desc.configurable)
+      continue
+
+    if (filter & SKIP_STRINGS && typeof key === 'string')
+      continue
+
+    if (filter & SKIP_SYMBOLS && typeof key === 'symbol')
+      continue
+
+    result.push(key)
+  }
+  return result
 }

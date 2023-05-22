@@ -1,18 +1,20 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
 
-'use strict';
+'use strict'
 
-import common from '../common';
-import assert from 'assert';
-import path from 'path';
-import fs from 'fs';
-import tmpdir from '../common/tmpdir';
+import assert from 'node:assert'
+import path from 'node:path'
+import fs from 'node:fs'
+import common from '../common'
+import tmpdir from '../common/tmpdir'
 
-tmpdir.refresh();
+tmpdir.refresh()
 
-const expected = 'ümlaut. Лорем 運務ホソモ指及 आपको करने विकास 紙読決多密所 أضف';
+const expected = 'ümlaut. Лорем 運務ホソモ指及 आपको करने विकास 紙読決多密所 أضف'
 
-const getFileName = (i) => path.join(tmpdir.path, `writev_${i}.txt`);
+function getFileName(i) {
+  return path.join(tmpdir.path, `writev_${i}.txt`)
+}
 
 /**
  * Testing with a array of buffers input
@@ -20,81 +22,80 @@ const getFileName = (i) => path.join(tmpdir.path, `writev_${i}.txt`);
 
 // fs.writev with array of buffers with all parameters
 {
-  const filename = getFileName(1);
-  const fd = fs.openSync(filename, 'w');
+  const filename = getFileName(1)
+  const fd = fs.openSync(filename, 'w')
 
-  const buffer = Buffer.from(expected);
-  const bufferArr = [buffer, buffer];
+  const buffer = Buffer.from(expected)
+  const bufferArr = [buffer, buffer]
 
   const done = common.mustSucceed((written, buffers) => {
-    assert.deepStrictEqual(bufferArr, buffers);
-    const expectedLength = bufferArr.length * buffer.byteLength;
-    assert.deepStrictEqual(written, expectedLength);
-    fs.closeSync(fd);
+    assert.deepStrictEqual(bufferArr, buffers)
+    const expectedLength = bufferArr.length * buffer.byteLength
+    assert.deepStrictEqual(written, expectedLength)
+    fs.closeSync(fd)
 
-    assert(Buffer.concat(bufferArr).equals(fs.readFileSync(filename)));
-  });
+    assert(Buffer.concat(bufferArr).equals(fs.readFileSync(filename)))
+  })
 
-  fs.writev(fd, bufferArr, null, done);
+  fs.writev(fd, bufferArr, null, done)
 }
 
 // fs.writev with array of buffers without position
 {
-  const filename = getFileName(2);
-  const fd = fs.openSync(filename, 'w');
+  const filename = getFileName(2)
+  const fd = fs.openSync(filename, 'w')
 
-  const buffer = Buffer.from(expected);
-  const bufferArr = [buffer, buffer];
+  const buffer = Buffer.from(expected)
+  const bufferArr = [buffer, buffer]
 
   const done = common.mustSucceed((written, buffers) => {
-    assert.deepStrictEqual(bufferArr, buffers);
+    assert.deepStrictEqual(bufferArr, buffers)
 
-    const expectedLength = bufferArr.length * buffer.byteLength;
-    assert.deepStrictEqual(written, expectedLength);
-    fs.closeSync(fd);
+    const expectedLength = bufferArr.length * buffer.byteLength
+    assert.deepStrictEqual(written, expectedLength)
+    fs.closeSync(fd)
 
-    assert(Buffer.concat(bufferArr).equals(fs.readFileSync(filename)));
-  });
+    assert(Buffer.concat(bufferArr).equals(fs.readFileSync(filename)))
+  })
 
-  fs.writev(fd, bufferArr, done);
+  fs.writev(fd, bufferArr, done)
 }
-
 
 // fs.writev with empty array of buffers
 {
-  const filename = getFileName(3);
-  const fd = fs.openSync(filename, 'w');
-  const bufferArr = [];
-  let afterSyncCall = false;
+  const filename = getFileName(3)
+  const fd = fs.openSync(filename, 'w')
+  const bufferArr = []
+  let afterSyncCall = false
 
   const done = common.mustSucceed((written, buffers) => {
-    assert.strictEqual(buffers.length, 0);
-    assert.strictEqual(written, 0);
-    assert(afterSyncCall);
-    fs.closeSync(fd);
-  });
+    assert.strictEqual(buffers.length, 0)
+    assert.strictEqual(written, 0)
+    assert(afterSyncCall)
+    fs.closeSync(fd)
+  })
 
-  fs.writev(fd, bufferArr, done);
-  afterSyncCall = true;
+  fs.writev(fd, bufferArr, done)
+  afterSyncCall = true
 }
 
 /**
  * Testing with wrong input types
  */
 {
-  const filename = getFileName(4);
+  const filename = getFileName(4)
   const fd = fs.openSync(filename, 'w');
 
   [false, 'test', {}, [{}], ['sdf'], null, undefined].forEach((i) => {
     assert.throws(
       () => fs.writev(fd, i, null, common.mustNotCall()), {
         code: 'ERR_INVALID_ARG_TYPE',
-        name: 'TypeError'
-      }
-    );
-  });
+        name: 'TypeError',
+      },
+    )
+  })
 
-  fs.closeSync(fd);
+  fs.closeSync(fd)
 }
 
 // fs.writev with wrong fd types
@@ -103,7 +104,7 @@ const getFileName = (i) => path.join(tmpdir.path, `writev_${i}.txt`);
     () => fs.writev(i, common.mustNotCall()),
     {
       code: 'ERR_INVALID_ARG_TYPE',
-      name: 'TypeError'
-    }
-  );
-});
+      name: 'TypeError',
+    },
+  )
+})

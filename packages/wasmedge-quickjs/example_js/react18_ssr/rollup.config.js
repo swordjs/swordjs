@@ -1,15 +1,14 @@
-const {babel} = require('@rollup/plugin-babel');
-const nodeResolve = require('@rollup/plugin-node-resolve');
-const commonjs = require('@rollup/plugin-commonjs');
-const replace = require('@rollup/plugin-replace');
+const { babel } = require('@rollup/plugin-babel')
+const nodeResolve = require('@rollup/plugin-node-resolve')
+const commonjs = require('@rollup/plugin-commonjs')
+const replace = require('@rollup/plugin-replace')
 
-const globals = require('rollup-plugin-node-globals');
-const plugin_async = require('rollup-plugin-async');
-
+const globals = require('rollup-plugin-node-globals')
+const plugin_async = require('rollup-plugin-async')
 
 const babelOptions = {
-  'presets': ['@babel/preset-react']
-};
+  presets: ['@babel/preset-react'],
+}
 
 module.exports = [
   {
@@ -23,7 +22,7 @@ module.exports = [
       babel(babelOptions),
       plugin_async(),
       nodeResolve(),
-      commonjs({ignoreDynamicRequires: false}),
+      commonjs({ ignoreDynamicRequires: false }),
       globals(),
       replace({
         'process.env.NODE_ENV': JSON.stringify('production'),
@@ -31,4 +30,4 @@ module.exports = [
       }),
     ],
   },
-];
+]

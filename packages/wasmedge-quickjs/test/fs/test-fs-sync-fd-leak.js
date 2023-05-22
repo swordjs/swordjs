@@ -20,55 +20,57 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
+'use strict'
 
-import assert from 'assert';
-import fs from 'fs';
-import { internalBinding } from 'internal/test/binding';
-const { UV_EBADF } = internalBinding('uv');
+import assert from 'node:assert'
+import fs from 'node:fs'
+import { internalBinding } from 'internal/test/binding'
+
+const { UV_EBADF } = internalBinding('uv')
 
 // Ensure that (read|write|append)FileSync() closes the file descriptor
-fs.openSync = function() {
-  return 42;
-};
-fs.closeSync = function(fd) {
-  assert.strictEqual(fd, 42);
-  close_called++;
-};
-fs.readSync = function() {
-  throw new Error('BAM');
-};
-fs.writeSync = function() {
-  throw new Error('BAM');
-};
+fs.openSync = function () {
+  return 42
+}
+fs.closeSync = function (fd) {
+  assert.strictEqual(fd, 42)
+  close_called++
+}
+fs.readSync = function () {
+  throw new Error('BAM')
+}
+fs.writeSync = function () {
+  throw new Error('BAM')
+}
 
-internalBinding('fs').fstat = function(fd, bigint, _, ctx) {
-  ctx.errno = UV_EBADF;
-  ctx.syscall = 'fstat';
-};
+internalBinding('fs').fstat = function (fd, bigint, _, ctx) {
+  ctx.errno = UV_EBADF
+  ctx.syscall = 'fstat'
+}
 
-let close_called = 0;
-ensureThrows(function() {
-  fs.readFileSync('dummy');
-}, 'EBADF: bad file descriptor, fstat');
-ensureThrows(function() {
-  fs.writeFileSync('dummy', 'xxx');
-}, 'BAM');
-ensureThrows(function() {
-  fs.appendFileSync('dummy', 'xxx');
-}, 'BAM');
+let close_called = 0
+ensureThrows(() => {
+  fs.readFileSync('dummy')
+}, 'EBADF: bad file descriptor, fstat')
+ensureThrows(() => {
+  fs.writeFileSync('dummy', 'xxx')
+}, 'BAM')
+ensureThrows(() => {
+  fs.appendFileSync('dummy', 'xxx')
+}, 'BAM')
 
 function ensureThrows(cb, message) {
-  let got_exception = false;
+  let got_exception = false
 
-  close_called = 0;
+  close_called = 0
   try {
-    cb();
-  } catch (e) {
-    assert.strictEqual(e.message, message);
-    got_exception = true;
+    cb()
+  }
+  catch (e) {
+    assert.strictEqual(e.message, message)
+    got_exception = true
   }
 
-  assert.strictEqual(close_called, 1);
-  assert.strictEqual(got_exception, true);
+  assert.strictEqual(close_called, 1)
+  assert.strictEqual(got_exception, true)
 }

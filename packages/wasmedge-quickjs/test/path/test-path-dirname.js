@@ -1,22 +1,22 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
-import common from '../common';
-import assert from 'assert';
-import path from 'path';
+'use strict'
+import assert from 'node:assert'
+import path from 'node:path'
+import common from '../common'
 
-const __filename = args[0];
+const __filename = args[0]
 
 assert.strictEqual(path.dirname(__filename).substr(-13),
-                   common.isWindows ? 'test\\path' : 'test/path');
+  common.isWindows ? 'test\\path' : 'test/path')
 
-assert.strictEqual(path.posix.dirname('/a/b/'), '/a');
-assert.strictEqual(path.posix.dirname('/a/b'), '/a');
-assert.strictEqual(path.posix.dirname('/a'), '/');
-assert.strictEqual(path.posix.dirname(''), '.');
-assert.strictEqual(path.posix.dirname('/'), '/');
-assert.strictEqual(path.posix.dirname('////'), '/');
-assert.strictEqual(path.posix.dirname('//a'), '//');
-assert.strictEqual(path.posix.dirname('foo'), '.');
+assert.strictEqual(path.posix.dirname('/a/b/'), '/a')
+assert.strictEqual(path.posix.dirname('/a/b'), '/a')
+assert.strictEqual(path.posix.dirname('/a'), '/')
+assert.strictEqual(path.posix.dirname(''), '.')
+assert.strictEqual(path.posix.dirname('/'), '/')
+assert.strictEqual(path.posix.dirname('////'), '/')
+assert.strictEqual(path.posix.dirname('//a'), '//')
+assert.strictEqual(path.posix.dirname('foo'), '.')
 /*
 assert.strictEqual(path.win32.dirname('c:\\'), 'c:\\');
 assert.strictEqual(path.win32.dirname('c:\\foo'), 'c:\\');

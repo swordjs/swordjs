@@ -19,34 +19,33 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import fixtures from '../common/fixtures';
-import assert from 'assert';
+'use strict'
+import assert from 'node:assert'
+import fs from 'node:fs'
+import common from '../common'
+import fixtures from '../common/fixtures'
 
-import fs from 'fs';
+const file = fixtures.path('x.txt')
+let data = ''
+let first = true
 
-const file = fixtures.path('x.txt');
-let data = '';
-let first = true;
-
-const stream = fs.createReadStream(file);
-stream.setEncoding('utf8');
-stream.on('data', common.mustCallAtLeast(function(chunk) {
-  data += chunk;
+const stream = fs.createReadStream(file)
+stream.setEncoding('utf8')
+stream.on('data', common.mustCallAtLeast((chunk) => {
+  data += chunk
   if (first) {
-    first = false;
-    stream.resume();
+    first = false
+    stream.resume()
   }
-}));
+}))
 
-process.nextTick(function() {
-  stream.pause();
-  setTimeout(function() {
-    stream.resume();
-  }, 100);
-});
+process.nextTick(() => {
+  stream.pause()
+  setTimeout(() => {
+    stream.resume()
+  }, 100)
+})
 
-process.on('exit', function() {
-  assert.strictEqual(data, 'xyz\n');
-});
+process.on('exit', () => {
+  assert.strictEqual(data, 'xyz\n')
+})

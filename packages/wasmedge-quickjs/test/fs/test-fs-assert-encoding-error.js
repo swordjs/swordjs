@@ -1,55 +1,55 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
 
-'use strict';
-import common from '../common';
-import assert from 'assert';
-import fs from 'fs';
+'use strict'
+import assert from 'node:assert'
+import fs from 'node:fs'
+import common from '../common'
 
-const options = 'test';
+const options = 'test'
 const expectedError = {
   code: 'ERR_INVALID_ARG_VALUE',
   name: 'TypeError',
-};
+}
 
 assert.throws(() => {
-  fs.readFile('path', options, common.mustNotCall());
-}, expectedError);
+  fs.readFile('path', options, common.mustNotCall())
+}, expectedError)
 
 assert.throws(() => {
-  fs.readFileSync('path', options);
-}, expectedError);
+  fs.readFileSync('path', options)
+}, expectedError)
 
 assert.throws(() => {
-  fs.readdir('path', options, common.mustNotCall());
-}, expectedError);
+  fs.readdir('path', options, common.mustNotCall())
+}, expectedError)
 
 assert.throws(() => {
-  fs.readdirSync('path', options);
-}, expectedError);
+  fs.readdirSync('path', options)
+}, expectedError)
 
 assert.throws(() => {
-  fs.readlink('path', options, common.mustNotCall());
-}, expectedError);
+  fs.readlink('path', options, common.mustNotCall())
+}, expectedError)
 
 assert.throws(() => {
-  fs.readlinkSync('path', options);
-}, expectedError);
+  fs.readlinkSync('path', options)
+}, expectedError)
 
 assert.throws(() => {
-  fs.writeFile('path', 'data', options, common.mustNotCall());
-}, expectedError);
+  fs.writeFile('path', 'data', options, common.mustNotCall())
+}, expectedError)
 
 assert.throws(() => {
-  fs.writeFileSync('path', 'data', options);
-}, expectedError);
+  fs.writeFileSync('path', 'data', options)
+}, expectedError)
 
 assert.throws(() => {
-  fs.appendFile('path', 'data', options, common.mustNotCall());
-}, expectedError);
+  fs.appendFile('path', 'data', options, common.mustNotCall())
+}, expectedError)
 
 assert.throws(() => {
-  fs.appendFileSync('path', 'data', options);
-}, expectedError);
+  fs.appendFileSync('path', 'data', options)
+}, expectedError)
 
 // unsupport watch
 /*
@@ -59,25 +59,25 @@ assert.throws(() => {
 */
 
 assert.throws(() => {
-  fs.realpath('path', options, common.mustNotCall());
-}, expectedError);
+  fs.realpath('path', options, common.mustNotCall())
+}, expectedError)
 
 assert.throws(() => {
-  fs.realpathSync('path', options);
-}, expectedError);
+  fs.realpathSync('path', options)
+}, expectedError)
 
 assert.throws(() => {
-  fs.mkdtemp('path', options, common.mustNotCall());
-}, expectedError);
+  fs.mkdtemp('path', options, common.mustNotCall())
+}, expectedError)
 
 assert.throws(() => {
-  fs.mkdtempSync('path', options);
-}, expectedError);
+  fs.mkdtempSync('path', options)
+}, expectedError)
 
 assert.throws(() => {
-  fs.createReadStream('path', options);
-}, expectedError);
+  fs.createReadStream('path', options)
+}, expectedError)
 
 assert.throws(() => {
-  fs.createWriteStream('path', options);
-}, expectedError);
+  fs.createWriteStream('path', options)
+}, expectedError)

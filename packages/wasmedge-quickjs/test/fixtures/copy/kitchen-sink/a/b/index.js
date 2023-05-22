@@ -1,3 +1,3 @@
 module.exports = {
-  purpose: 'testing copy'
-};
+  purpose: 'testing copy',
+}

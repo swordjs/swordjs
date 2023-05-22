@@ -19,18 +19,19 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
+'use strict'
 
-import assert from 'assert';
-import path from 'path';
-import fs from 'fs';
-import tmpdir from '../common/tmpdir';
-const filename = path.join(tmpdir.path, 'write.txt');
+import assert from 'node:assert'
+import path from 'node:path'
+import fs from 'node:fs'
+import tmpdir from '../common/tmpdir'
 
-tmpdir.refresh();
+const filename = path.join(tmpdir.path, 'write.txt')
+
+tmpdir.refresh()
 
 {
-  const parameters = [Buffer.from('bár'), 0, Buffer.byteLength('bár')];
+  const parameters = [Buffer.from('bár'), 0, Buffer.byteLength('bár')]
 
   // The first time fs.writeSync is called with all parameters provided.
   // After that, each pop in the cycle removes the final parameter. So:
@@ -38,19 +39,19 @@ tmpdir.refresh();
   // - The 3rd time fs.writeSync with a buffer, without the offset and length
   //   parameters.
   while (parameters.length > 0) {
-    const fd = fs.openSync(filename, 'w');
+    const fd = fs.openSync(filename, 'w')
 
-    let written = fs.writeSync(fd, '');
-    assert.strictEqual(written, 0);
+    let written = fs.writeSync(fd, '')
+    assert.strictEqual(written, 0)
 
-    fs.writeSync(fd, 'foo');
+    fs.writeSync(fd, 'foo')
 
-    written = fs.writeSync(fd, ...parameters);
-    assert.ok(written > 3);
-    fs.closeSync(fd);
+    written = fs.writeSync(fd, ...parameters)
+    assert.ok(written > 3)
+    fs.closeSync(fd)
 
-    assert.strictEqual(fs.readFileSync(filename, 'utf-8'), 'foobár');
+    assert.strictEqual(fs.readFileSync(filename, 'utf-8'), 'foobár')
 
-    parameters.pop();
+    parameters.pop()
   }
 }

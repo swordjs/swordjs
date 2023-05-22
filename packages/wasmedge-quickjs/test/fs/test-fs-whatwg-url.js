@@ -1,43 +1,43 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import common from '../common';
-import fixtures from '../common/fixtures';
-import assert from 'assert';
-import path from 'path';
-import fs from 'fs';
-import os from 'os';
+import assert from 'node:assert'
+import path from 'node:path'
+import fs from 'node:fs'
+import os from 'node:os'
+import fixtures from '../common/fixtures'
+import common from '../common'
 
 function pathToFileURL(p) {
   if (!path.isAbsolute(p))
-    throw new Error('Path must be absolute');
+    throw new Error('Path must be absolute')
   if (common.isWindows && p.startsWith('\\\\'))
-    p = p.slice(2);
-  return new URL(`file://${p}`);
+    p = p.slice(2)
+  return new URL(`file://${p}`)
 }
 
-const p = path.resolve(fixtures.fixturesDir, 'a.js');
-const url = pathToFileURL(p);
+const p = path.resolve(fixtures.fixturesDir, 'a.js')
+const url = pathToFileURL(p)
 
-assert(url instanceof URL);
+assert(url instanceof URL)
 
 // Check that we can pass in a URL object successfully
 fs.readFile(url, common.mustSucceed((data) => {
-  assert(Buffer.isBuffer(data));
-}));
+  assert(Buffer.isBuffer(data))
+}))
 
 // Check that using a non file:// URL reports an error
-const httpUrl = new URL('http://example.org');
+const httpUrl = new URL('http://example.org')
 
 assert.throws(
   () => {
-    fs.readFile(httpUrl, common.mustNotCall());
+    fs.readFile(httpUrl, common.mustNotCall())
   },
   {
     code: 'ERR_INVALID_URL_SCHEME',
     name: 'TypeError',
-    message: 'The URL must be of scheme file'
-  });
+    message: 'The URL must be of scheme file',
+  })
 
 // pct-encoded characters in the path will be decoded and checked
 if (common.isWindows) {
@@ -45,58 +45,59 @@ if (common.isWindows) {
   ['%2f', '%2F', '%5c', '%5C'].forEach((i) => {
     assert.throws(
       () => {
-        fs.readFile(new URL(`file:///c:/tmp/${i}`), common.mustNotCall());
+        fs.readFile(new URL(`file:///c:/tmp/${i}`), common.mustNotCall())
       },
       {
         code: 'ERR_INVALID_FILE_URL_PATH',
         name: 'TypeError',
-        message: 'File URL path must not include encoded \\ or / characters'
-      }
-    );
-  });
+        message: 'File URL path must not include encoded \\ or / characters',
+      },
+    )
+  })
   assert.throws(
     () => {
-      fs.readFile(new URL('file:///c:/tmp/%00test'), common.mustNotCall());
+      fs.readFile(new URL('file:///c:/tmp/%00test'), common.mustNotCall())
     },
     {
       code: 'ERR_INVALID_ARG_VALUE',
       name: 'TypeError',
-      message: 'The argument \'path\' must be a string or Uint8Array without ' +
-               "null bytes. Received 'c:\\\\tmp\\\\\\x00test'"
-    }
-  );
-} else {
+      message: 'The argument \'path\' must be a string or Uint8Array without '
+               + 'null bytes. Received \'c:\\\\tmp\\\\\\x00test\'',
+    },
+  )
+}
+else {
   // Encoded forward slashes are not permitted on other platforms
   ['%2f', '%2F'].forEach((i) => {
     assert.throws(
       () => {
-        fs.readFile(new URL(`file:///c:/tmp/${i}`), common.mustNotCall());
+        fs.readFile(new URL(`file:///c:/tmp/${i}`), common.mustNotCall())
       },
       {
         code: 'ERR_INVALID_FILE_URL_PATH',
         name: 'TypeError',
-        message: 'File URL path must not include encoded / characters'
-      });
-  });
+        message: 'File URL path must not include encoded / characters',
+      })
+  })
   assert.throws(
     () => {
-      fs.readFile(new URL('file://hostname/a/b/c'), common.mustNotCall());
+      fs.readFile(new URL('file://hostname/a/b/c'), common.mustNotCall())
     },
     {
       code: 'ERR_INVALID_FILE_URL_HOST',
       name: 'TypeError',
-      message: `File URL host must be "localhost" or empty on ${os.platform()}`
-    }
-  );
+      message: `File URL host must be "localhost" or empty on ${os.platform()}`,
+    },
+  )
   assert.throws(
     () => {
-      fs.readFile(new URL('file:///tmp/%00test'), common.mustNotCall());
+      fs.readFile(new URL('file:///tmp/%00test'), common.mustNotCall())
     },
     {
       code: 'ERR_INVALID_ARG_VALUE',
       name: 'TypeError',
-      message: "The argument 'path' must be a string or Uint8Array without " +
-               "null bytes. Received '/tmp/\\x00test'"
-    }
-  );
+      message: 'The argument \'path\' must be a string or Uint8Array without '
+               + 'null bytes. Received \'/tmp/\\x00test\'',
+    },
+  )
 }

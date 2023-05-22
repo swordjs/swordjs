@@ -1,64 +1,64 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
-import assert from 'assert';
-import path from 'path';
+'use strict'
+import assert from 'node:assert'
+import path from 'node:path'
 
-const failures = [];
-const backslashRE = /\\/g;
+const failures = []
+const backslashRE = /\\/g
 
 const joinTests = [
-  [ [path.posix.join, /*path.win32.join*/],
+  [[path.posix.join],
     // Arguments                     result
     [[['.', 'x/b', '..', '/b/c.js'], 'x/b/c.js'],
-     [[], '.'],
-     [['/.', 'x/b', '..', '/b/c.js'], '/x/b/c.js'],
-     [['/foo', '../../../bar'], '/bar'],
-     [['foo', '../../../bar'], '../../bar'],
-     [['foo/', '../../../bar'], '../../bar'],
-     [['foo/x', '../../../bar'], '../bar'],
-     [['foo/x', './bar'], 'foo/x/bar'],
-     [['foo/x/', './bar'], 'foo/x/bar'],
-     [['foo/x/', '.', 'bar'], 'foo/x/bar'],
-     [['./'], './'],
-     [['.', './'], './'],
-     [['.', '.', '.'], '.'],
-     [['.', './', '.'], '.'],
-     [['.', '/./', '.'], '.'],
-     [['.', '/////./', '.'], '.'],
-     [['.'], '.'],
-     [['', '.'], '.'],
-     [['', 'foo'], 'foo'],
-     [['foo', '/bar'], 'foo/bar'],
-     [['', '/foo'], '/foo'],
-     [['', '', '/foo'], '/foo'],
-     [['', '', 'foo'], 'foo'],
-     [['foo', ''], 'foo'],
-     [['foo/', ''], 'foo/'],
-     [['foo', '', '/bar'], 'foo/bar'],
-     [['./', '..', '/foo'], '../foo'],
-     [['./', '..', '..', '/foo'], '../../foo'],
-     [['.', '..', '..', '/foo'], '../../foo'],
-     [['', '..', '..', '/foo'], '../../foo'],
-     [['/'], '/'],
-     [['/', '.'], '/'],
-     [['/', '..'], '/'],
-     [['/', '..', '..'], '/'],
-     [[''], '.'],
-     [['', ''], '.'],
-     [[' /foo'], ' /foo'],
-     [[' ', 'foo'], ' /foo'],
-     [[' ', '.'], ' '],
-     [[' ', '/'], ' /'],
-     [[' ', ''], ' '],
-     [['/', 'foo'], '/foo'],
-     [['/', '/foo'], '/foo'],
-     [['/', '//foo'], '/foo'],
-     [['/', '', '/foo'], '/foo'],
-     [['', '/', 'foo'], '/foo'],
-     [['', '/', '/foo'], '/foo'],
+      [[], '.'],
+      [['/.', 'x/b', '..', '/b/c.js'], '/x/b/c.js'],
+      [['/foo', '../../../bar'], '/bar'],
+      [['foo', '../../../bar'], '../../bar'],
+      [['foo/', '../../../bar'], '../../bar'],
+      [['foo/x', '../../../bar'], '../bar'],
+      [['foo/x', './bar'], 'foo/x/bar'],
+      [['foo/x/', './bar'], 'foo/x/bar'],
+      [['foo/x/', '.', 'bar'], 'foo/x/bar'],
+      [['./'], './'],
+      [['.', './'], './'],
+      [['.', '.', '.'], '.'],
+      [['.', './', '.'], '.'],
+      [['.', '/./', '.'], '.'],
+      [['.', '/////./', '.'], '.'],
+      [['.'], '.'],
+      [['', '.'], '.'],
+      [['', 'foo'], 'foo'],
+      [['foo', '/bar'], 'foo/bar'],
+      [['', '/foo'], '/foo'],
+      [['', '', '/foo'], '/foo'],
+      [['', '', 'foo'], 'foo'],
+      [['foo', ''], 'foo'],
+      [['foo/', ''], 'foo/'],
+      [['foo', '', '/bar'], 'foo/bar'],
+      [['./', '..', '/foo'], '../foo'],
+      [['./', '..', '..', '/foo'], '../../foo'],
+      [['.', '..', '..', '/foo'], '../../foo'],
+      [['', '..', '..', '/foo'], '../../foo'],
+      [['/'], '/'],
+      [['/', '.'], '/'],
+      [['/', '..'], '/'],
+      [['/', '..', '..'], '/'],
+      [[''], '.'],
+      [['', ''], '.'],
+      [[' /foo'], ' /foo'],
+      [[' ', 'foo'], ' /foo'],
+      [[' ', '.'], ' '],
+      [[' ', '/'], ' /'],
+      [[' ', ''], ' '],
+      [['/', 'foo'], '/foo'],
+      [['/', '/foo'], '/foo'],
+      [['/', '//foo'], '/foo'],
+      [['/', '', '/foo'], '/foo'],
+      [['', '/', 'foo'], '/foo'],
+      [['', '/', '/foo'], '/foo'],
     ],
   ],
-];
+]
 /*
 // Windows-specific join tests
 joinTests.push([
@@ -116,30 +116,31 @@ joinTests.push([
 */
 joinTests.forEach((test) => {
   if (!Array.isArray(test[0]))
-    test[0] = [test[0]];
+    test[0] = [test[0]]
   test[0].forEach((join) => {
     test[1].forEach((test) => {
-      const actual = join.apply(null, test[0]);
-      const expected = test[1];
+      const actual = join.apply(null, test[0])
+      const expected = test[1]
       // For non-Windows specific tests with the Windows join(), we need to try
       // replacing the slashes since the non-Windows specific tests' `expected`
       // use forward slashes
-      let actualAlt;
-      let os;
-      if (false /*join === path.win32.join*/) {
-        actualAlt = actual.replace(backslashRE, '/');
-        os = 'win32';
-      } else {
-        os = 'posix';
+      let actualAlt
+      let os
+      if (false /* join === path.win32.join */) {
+        actualAlt = actual.replace(backslashRE, '/')
+        os = 'win32'
+      }
+      else {
+        os = 'posix'
       }
       if (actual !== expected && actualAlt !== expected) {
-        const delimiter = test[0].map(JSON.stringify).join(',');
+        const delimiter = test[0].map(JSON.stringify).join(',')
         const message = `path.${os}.join(${delimiter})\n  expect=${
-          JSON.stringify(expected)}\n  actual=${JSON.stringify(actual)}`;
-        failures.push(`\n${message}`);
+          JSON.stringify(expected)}\n  actual=${JSON.stringify(actual)}`
+        failures.push(`\n${message}`)
       }
-    });
-  });
-});
+    })
+  })
+})
 
-assert.strictEqual(failures.length, 0, failures.join(''));
+assert.strictEqual(failures.length, 0, failures.join(''))

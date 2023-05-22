@@ -19,41 +19,41 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
+'use strict'
 // Test creating and resolving relative junction or symbolic link
 
-import common from '../common';
-import fixtures from '../common/fixtures';
-import assert from 'assert';
-import path from 'path';
-import fs from 'fs';
+import assert from 'node:assert'
+import path from 'node:path'
+import fs from 'node:fs'
+import fixtures from '../common/fixtures'
+import common from '../common'
 
-import tmpdir from '../common/tmpdir';
+import tmpdir from '../common/tmpdir'
 
-const linkPath1 = path.join(tmpdir.path, 'junction1');
-const linkPath2 = path.join(tmpdir.path, 'junction2');
-const linkTarget = fixtures.fixturesDir;
-const linkData = fixtures.fixturesDir;
+const linkPath1 = path.join(tmpdir.path, 'junction1')
+const linkPath2 = path.join(tmpdir.path, 'junction2')
+const linkTarget = fixtures.fixturesDir
+const linkData = fixtures.fixturesDir
 
-tmpdir.refresh();
+tmpdir.refresh()
 
 // Test fs.symlink()
 fs.symlink(linkData, linkPath1, 'junction', common.mustSucceed(() => {
-  verifyLink(linkPath1);
-}));
+  verifyLink(linkPath1)
+}))
 
 // Test fs.symlinkSync()
-fs.symlinkSync(linkData, linkPath2, 'junction');
-verifyLink(linkPath2);
+fs.symlinkSync(linkData, linkPath2, 'junction')
+verifyLink(linkPath2)
 
 function verifyLink(linkPath) {
-  const stats = fs.lstatSync(linkPath);
-  assert.ok(stats.isSymbolicLink());
+  const stats = fs.lstatSync(linkPath)
+  assert.ok(stats.isSymbolicLink())
 
-  const data1 = fs.readFileSync(`${linkPath}/x.txt`, 'ascii');
-  const data2 = fs.readFileSync(`${linkTarget}/x.txt`, 'ascii');
-  assert.strictEqual(data1, data2);
+  const data1 = fs.readFileSync(`${linkPath}/x.txt`, 'ascii')
+  const data2 = fs.readFileSync(`${linkTarget}/x.txt`, 'ascii')
+  assert.strictEqual(data1, data2)
 
   // Clean up.
-  fs.unlinkSync(linkPath);
+  fs.unlinkSync(linkPath)
 }

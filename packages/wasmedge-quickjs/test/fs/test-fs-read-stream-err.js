@@ -19,45 +19,45 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import assert from 'assert';
-import fs from 'fs';
+'use strict'
+import assert from 'node:assert'
+import fs from 'node:fs'
+import common from '../common'
 
 const stream = fs.createReadStream(__filename, {
-  bufferSize: 64
-});
-const err = new Error('BAM');
+  bufferSize: 64,
+})
+const err = new Error('BAM')
 
 stream.on('error', common.mustCall((err_) => {
   process.nextTick(common.mustCall(() => {
-    assert.strictEqual(stream.fd, null);
-    assert.strictEqual(err_, err);
-  }));
-}));
+    assert.strictEqual(stream.fd, null)
+    assert.strictEqual(err_, err)
+  }))
+}))
 
 fs.close = common.mustCall((fd_, cb) => {
-  assert.strictEqual(fd_, stream.fd);
-  process.nextTick(cb);
-});
+  assert.strictEqual(fd_, stream.fd)
+  process.nextTick(cb)
+})
 
-const read = fs.read;
-fs.read = function() {
+const read = fs.read
+fs.read = function () {
   // First time is ok.
-  read.apply(fs, arguments);
+  read.apply(fs, arguments)
   // Then it breaks.
-  fs.read = common.mustCall(function() {
-    const cb = arguments[arguments.length - 1];
+  fs.read = common.mustCall(function () {
+    const cb = arguments[arguments.length - 1]
     process.nextTick(() => {
-      cb(err);
-    });
+      cb(err)
+    })
     // It should not be called again!
     fs.read = () => {
-      throw new Error('BOOM!');
-    };
-  });
-};
+      throw new Error('BOOM!')
+    }
+  })
+}
 
 stream.on('data', (buf) => {
-  stream.on('data', common.mustNotCall("no more 'data' events should follow"));
-});
+  stream.on('data', common.mustNotCall('no more \'data\' events should follow'))
+})

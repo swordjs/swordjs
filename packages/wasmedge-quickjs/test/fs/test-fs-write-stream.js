@@ -19,49 +19,49 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import assert from 'assert';
-import path from 'path';
-import fs from 'fs';
+'use strict'
+import assert from 'node:assert'
+import path from 'node:path'
+import fs from 'node:fs'
+import common from '../common'
 
-import tmpdir from '../common/tmpdir';
+import tmpdir from '../common/tmpdir'
 
-const file = path.join(tmpdir.path, 'write.txt');
+const file = path.join(tmpdir.path, 'write.txt')
 
-tmpdir.refresh();
+tmpdir.refresh()
 
 {
-  const stream = fs.WriteStream(file);
-  const _fs_close = fs.close;
+  const stream = fs.WriteStream(file)
+  const _fs_close = fs.close
 
-  fs.close = function(fd) {
-    assert.ok(fd, 'fs.close must not be called without an undefined fd.');
-    fs.close = _fs_close;
-    fs.closeSync(fd);
-  };
-  stream.destroy();
+  fs.close = function (fd) {
+    assert.ok(fd, 'fs.close must not be called without an undefined fd.')
+    fs.close = _fs_close
+    fs.closeSync(fd)
+  }
+  stream.destroy()
 }
 
 {
-  const stream = fs.createWriteStream(file);
+  const stream = fs.createWriteStream(file)
 
-  stream.on('drain', function() {
-    assert.fail('\'drain\' event must not be emitted before ' +
-                'stream.write() has been called at least once.');
-  });
-  stream.destroy();
+  stream.on('drain', () => {
+    assert.fail('\'drain\' event must not be emitted before '
+                + 'stream.write() has been called at least once.')
+  })
+  stream.destroy()
 }
 
 // Throws if data is not of type Buffer.
 {
-  const stream = fs.createWriteStream(file);
-  stream.on('error', common.mustNotCall());
+  const stream = fs.createWriteStream(file)
+  stream.on('error', common.mustNotCall())
   assert.throws(() => {
-    stream.write(42);
+    stream.write(42)
   }, {
     code: 'ERR_INVALID_ARG_TYPE',
-    name: 'TypeError'
-  });
-  stream.destroy();
+    name: 'TypeError',
+  })
+  stream.destroy()
 }

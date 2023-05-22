@@ -1,9 +1,9 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import assert from 'assert';
-import fs from 'fs';
-import fsPromises from 'fs/promises';
+import assert from 'node:assert'
+import fs from 'node:fs'
+import fsPromises from 'node:fs/promises'
 
-assert.strictEqual(fsPromises, fs.promises);
-assert.strictEqual(fsPromises.constants, fs.constants);
+assert.strictEqual(fsPromises, fs.promises)
+assert.strictEqual(fsPromises.constants, fs.constants)

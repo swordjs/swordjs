@@ -1,22 +1,23 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
 // Flags: --expose-internals
-'use strict';
+'use strict'
 
-import common from '../common';
-import { getDirents, getDirent } from 'internal/fs/utils';
-import assert from 'assert';
-import { internalBinding } from 'internal/test/binding';
-const { UV_DIRENT_UNKNOWN } = internalBinding('constants').fs;
-import fs from 'fs';
-import path from 'path';
+import assert from 'node:assert'
+import fs from 'node:fs'
+import path from 'node:path'
+import { internalBinding } from 'internal/test/binding'
+import { getDirent, getDirents } from 'internal/fs/utils'
+import common from '../common'
 
-import tmpdir from '../common/tmpdir';
-const filename = 'foo';
+import tmpdir from '../common/tmpdir'
+
+const { UV_DIRENT_UNKNOWN } = internalBinding('constants').fs
+const filename = 'foo'
 
 {
   // setup
-  tmpdir.refresh();
-  fs.writeFileSync(path.join(tmpdir.path, filename), '');
+  tmpdir.refresh()
+  fs.writeFileSync(path.join(tmpdir.path, filename), '')
 }
 // getDirents
 {
@@ -25,10 +26,10 @@ const filename = 'foo';
     tmpdir.path,
     [[filename], [UV_DIRENT_UNKNOWN]],
     common.mustCall((err, names) => {
-      assert.strictEqual(err, null);
-      assert.strictEqual(names.length, 1);
+      assert.strictEqual(err, null)
+      assert.strictEqual(names.length, 1)
     },
-    ));
+    ))
 }
 {
   // string + Buffer
@@ -36,10 +37,10 @@ const filename = 'foo';
     tmpdir.path,
     [[Buffer.from(filename)], [UV_DIRENT_UNKNOWN]],
     common.mustCall((err, names) => {
-      assert.strictEqual(err, null);
-      assert.strictEqual(names.length, 1);
+      assert.strictEqual(err, null)
+      assert.strictEqual(names.length, 1)
     },
-    ));
+    ))
 }
 {
   // Buffer + Buffer
@@ -47,10 +48,10 @@ const filename = 'foo';
     Buffer.from(tmpdir.path),
     [[Buffer.from(filename)], [UV_DIRENT_UNKNOWN]],
     common.mustCall((err, names) => {
-      assert.strictEqual(err, null);
-      assert.strictEqual(names.length, 1);
+      assert.strictEqual(err, null)
+      assert.strictEqual(names.length, 1)
     },
-    ));
+    ))
 }
 {
   // wrong combination
@@ -61,11 +62,11 @@ const filename = 'foo';
       assert.strictEqual(
         err.message,
         [
-          'The "path" argument must be of type string or an ' +
-          'instance of Buffer. Received type number (42)',
-        ].join(''));
+          'The "path" argument must be of type string or an '
+          + 'instance of Buffer. Received type number (42)',
+        ].join(''))
     },
-    ));
+    ))
 }
 // getDirent
 {
@@ -75,36 +76,36 @@ const filename = 'foo';
     filename,
     UV_DIRENT_UNKNOWN,
     common.mustCall((err, dirent) => {
-      assert.strictEqual(err, null);
-      assert.strictEqual(dirent.name, filename);
+      assert.strictEqual(err, null)
+      assert.strictEqual(dirent.name, filename)
     },
-    ));
+    ))
 }
 {
   // string + Buffer
-  const filenameBuffer = Buffer.from(filename);
+  const filenameBuffer = Buffer.from(filename)
   getDirent(
     tmpdir.path,
     filenameBuffer,
     UV_DIRENT_UNKNOWN,
     common.mustCall((err, dirent) => {
-      assert.strictEqual(err, null);
-      assert.strictEqual(dirent.name, filenameBuffer);
+      assert.strictEqual(err, null)
+      assert.strictEqual(dirent.name, filenameBuffer)
     },
-    ));
+    ))
 }
 {
   // Buffer + Buffer
-  const filenameBuffer = Buffer.from(filename);
+  const filenameBuffer = Buffer.from(filename)
   getDirent(
     Buffer.from(tmpdir.path),
     filenameBuffer,
     UV_DIRENT_UNKNOWN,
     common.mustCall((err, dirent) => {
-      assert.strictEqual(err, null);
-      assert.strictEqual(dirent.name, filenameBuffer);
+      assert.strictEqual(err, null)
+      assert.strictEqual(dirent.name, filenameBuffer)
     },
-    ));
+    ))
 }
 {
   // wrong combination
@@ -116,9 +117,9 @@ const filename = 'foo';
       assert.strictEqual(
         err.message,
         [
-          'The "path" argument must be of type string or an ' +
-          'instance of Buffer. Received type number (42)',
-        ].join(''));
+          'The "path" argument must be of type string or an '
+          + 'instance of Buffer. Received type number (42)',
+        ].join(''))
     },
-    ));
+    ))
 }

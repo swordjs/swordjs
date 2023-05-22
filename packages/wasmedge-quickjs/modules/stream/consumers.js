@@ -1,7 +1,7 @@
 // Copyright 2018-2022 the Deno authors. All rights reserved. MIT license.
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
 
-import { Buffer } from "buffer";
+import { Buffer } from 'node:buffer'
 
 /**
  * @typedef {import('../_global.d.ts').ReadableStream
@@ -9,14 +9,13 @@ import { Buffer } from "buffer";
  * @typedef {import('../_stream.d.ts')} Readable
  */
 
-
 /**
  * @param {AsyncIterable|ReadableStream|Readable} stream
  * @returns {Promise<ArrayBuffer>}
  */
 async function arrayBuffer(stream) {
-    const ret = await blob(stream);
-    return ret.arrayBuffer();
+  const ret = await blob(stream)
+  return ret.arrayBuffer()
 }
 
 /**
@@ -24,7 +23,7 @@ async function arrayBuffer(stream) {
  * @returns {Promise<Buffer>}
  */
 async function buffer(stream) {
-    return Buffer.from(await arrayBuffer(stream));
+  return Buffer.from(await arrayBuffer(stream))
 }
 
 /**
@@ -32,19 +31,18 @@ async function buffer(stream) {
  * @returns {Promise<string>}
  */
 async function text(stream) {
-    const dec = new TextDecoder();
-    let str = "";
-    for await (const chunk of stream) {
-        if (typeof chunk === "string") {
-            str += chunk;
-        } else {
-            str += dec.decode(chunk, { stream: true });
-        }
-    }
-    // Flush the streaming TextDecoder so that any pending
-    // incomplete multibyte characters are handled.
-    str += dec.decode(undefined, { stream: false });
-    return str;
+  const dec = new TextDecoder()
+  let str = ''
+  for await (const chunk of stream) {
+    if (typeof chunk === 'string')
+      str += chunk
+    else
+      str += dec.decode(chunk, { stream: true })
+  }
+  // Flush the streaming TextDecoder so that any pending
+  // incomplete multibyte characters are handled.
+  str += dec.decode(undefined, { stream: false })
+  return str
 }
 
 /**
@@ -52,14 +50,14 @@ async function text(stream) {
  * @returns {Promise<any>}
  */
 async function json(stream) {
-    const str = await text(stream);
-    return JSON.parse(str);
+  const str = await text(stream)
+  return JSON.parse(str)
 }
 
 export default {
-    arrayBuffer,
-    buffer,
-    json,
-    text,
-};
-export { arrayBuffer, buffer, json, text };
+  arrayBuffer,
+  buffer,
+  json,
+  text,
+}
+export { arrayBuffer, buffer, json, text }

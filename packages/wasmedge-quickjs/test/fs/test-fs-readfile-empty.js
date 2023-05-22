@@ -19,27 +19,27 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
+'use strict'
 
 // Trivial test of fs.readFile on an empty file.
-import common from '../common';
-import fs from 'fs';
-import assert from 'assert';
-import fixtures from '../common/fixtures';
+import fs from 'node:fs'
+import assert from 'node:assert'
+import common from '../common'
+import fixtures from '../common/fixtures'
 
-const fn = fixtures.path('empty.txt');
+const fn = fixtures.path('empty.txt')
 
 fs.readFile(fn, common.mustCall((err, data) => {
-  assert.ok(data);
-}));
+  assert.ok(data)
+}))
 
 fs.readFile(fn, 'utf8', common.mustCall((err, data) => {
-  assert.strictEqual(data, '');
-}));
+  assert.strictEqual(data, '')
+}))
 
 fs.readFile(fn, { encoding: 'utf8' }, common.mustCall((err, data) => {
-  assert.strictEqual(data, '');
-}));
+  assert.strictEqual(data, '')
+}))
 
-assert.ok(fs.readFileSync(fn));
-assert.strictEqual(fs.readFileSync(fn, 'utf8'), '');
+assert.ok(fs.readFileSync(fn))
+assert.strictEqual(fs.readFileSync(fn, 'utf8'), '')

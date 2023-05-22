@@ -19,28 +19,29 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
+'use strict'
+
+import fs from 'node:fs'
+import path from 'node:path'
+import common from '../common'
+
+import tmpdir from '../common/tmpdir'
+
 if (!common.isWindows)
-  common.skip('this test is Windows-specific.');
-
-import fs from 'fs';
-import path from 'path';
-
-import tmpdir from '../common/tmpdir';
+  common.skip('this test is Windows-specific.')
 
 // Make a path that will be at least 260 chars long.
-const fileNameLen = Math.max(260 - tmpdir.path.length - 1, 1);
-const fileName = path.join(tmpdir.path, 'x'.repeat(fileNameLen));
-const fullPath = path.resolve(fileName);
+const fileNameLen = Math.max(260 - tmpdir.path.length - 1, 1)
+const fileName = path.join(tmpdir.path, 'x'.repeat(fileNameLen))
+const fullPath = path.resolve(fileName)
 
-tmpdir.refresh();
+tmpdir.refresh()
 
 console.log({
   filenameLength: fileName.length,
-  fullPathLength: fullPath.length
-});
+  fullPathLength: fullPath.length,
+})
 
 fs.writeFile(fullPath, 'ok', common.mustSucceed(() => {
-  fs.stat(fullPath, common.mustSucceed());
-}));
+  fs.stat(fullPath, common.mustSucceed())
+}))

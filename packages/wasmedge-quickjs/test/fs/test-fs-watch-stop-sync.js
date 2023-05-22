@@ -1,6 +1,7 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
-import common from '../common';
+'use strict'
+import fs from 'node:fs'
+import common from '../common'
 
 // This test checks that the `stop` event is emitted asynchronously.
 //
@@ -10,13 +11,11 @@ import common from '../common';
 // If it is asynchronous, then the listener will be removed before the event is
 // emitted.
 
-import fs from 'fs';
-
 const listener = common.mustNotCall(
-  'listener should have been removed before the event was emitted'
-);
+  'listener should have been removed before the event was emitted',
+)
 
-const watch = fs.watchFile(__filename, common.mustNotCall());
-watch.once('stop', listener);
-watch.stop();
-watch.removeListener('stop', listener);
+const watch = fs.watchFile(__filename, common.mustNotCall())
+watch.once('stop', listener)
+watch.stop()
+watch.removeListener('stop', listener)

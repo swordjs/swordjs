@@ -19,38 +19,37 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import tmpdir from '../common/tmpdir';
+'use strict'
+import assert from 'node:assert'
+import fs from 'node:fs'
+import common from '../common'
+import tmpdir from '../common/tmpdir'
 
 // This test ensures that `fs.truncate` opens the file with `r+` and not `w`,
 // which had earlier resulted in the target file's content getting zeroed out.
 // https://github.com/nodejs/node-v0.x-archive/issues/6233
 
-import assert from 'assert';
-import fs from 'fs';
+const filename = `${tmpdir.path}/truncate-file.txt`
 
-const filename = `${tmpdir.path}/truncate-file.txt`;
-
-tmpdir.refresh();
+tmpdir.refresh()
 
 // Synchronous test.
 {
-  fs.writeFileSync(filename, '0123456789');
-  assert.strictEqual(fs.readFileSync(filename).toString(), '0123456789');
-  fs.truncateSync(filename, 5);
-  assert.strictEqual(fs.readFileSync(filename).toString(), '01234');
+  fs.writeFileSync(filename, '0123456789')
+  assert.strictEqual(fs.readFileSync(filename).toString(), '0123456789')
+  fs.truncateSync(filename, 5)
+  assert.strictEqual(fs.readFileSync(filename).toString(), '01234')
 }
 
 // Asynchronous test.
 {
-  fs.writeFileSync(filename, '0123456789');
-  assert.strictEqual(fs.readFileSync(filename).toString(), '0123456789');
+  fs.writeFileSync(filename, '0123456789')
+  assert.strictEqual(fs.readFileSync(filename).toString(), '0123456789')
   fs.truncate(
     filename,
     5,
     common.mustSucceed(() => {
-      assert.strictEqual(fs.readFileSync(filename).toString(), '01234');
-    })
-  );
+      assert.strictEqual(fs.readFileSync(filename).toString(), '01234')
+    }),
+  )
 }

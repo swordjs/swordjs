@@ -1,21 +1,20 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
 // Flags: --expose-internals
-'use strict';
+'use strict'
 
-import common from '../common';
-import assert from 'assert';
-import fs from 'fs';
+import assert from 'node:assert'
+import fs, { constants } from 'node:fs'
+import common from '../common'
 
-import tmpdir from '../common/tmpdir';
+import tmpdir from '../common/tmpdir'
 
 // import { internalBinding } from 'internal/test/binding';
 // const binding = internalBinding('fs');
 
-const __filename = args[0];
+const __filename = args[0]
 
-const readdirDir = tmpdir.path;
-const files = ['empty', 'files', 'for', 'just', 'testing'];
-import { constants } from 'fs';
+const readdirDir = tmpdir.path
+const files = ['empty', 'files', 'for', 'just', 'testing']
 const types = {
   isDirectory: constants.UV_DIRENT_DIR,
   isFile: constants.UV_DIRENT_FILE,
@@ -23,65 +22,64 @@ const types = {
   isCharacterDevice: constants.UV_DIRENT_CHAR,
   isSymbolicLink: constants.UV_DIRENT_LINK,
   isFIFO: constants.UV_DIRENT_FIFO,
-  isSocket: constants.UV_DIRENT_SOCKET
-};
-const typeMethods = Object.keys(types);
+  isSocket: constants.UV_DIRENT_SOCKET,
+}
+const typeMethods = Object.keys(types)
 
 // Make sure tmp directory is clean
-tmpdir.refresh();
+tmpdir.refresh()
 
 // Create the necessary files
-files.forEach(function(currentFile) {
-  fs.closeSync(fs.openSync(`${readdirDir}/${currentFile}`, 'w'));
-});
-
+files.forEach((currentFile) => {
+  fs.closeSync(fs.openSync(`${readdirDir}/${currentFile}`, 'w'))
+})
 
 function assertDirents(dirents) {
-  assert.strictEqual(files.length, dirents.length);
+  assert.strictEqual(files.length, dirents.length)
   // dirent is not order by name in this platform
-  dirents.sort((a, b) => a.name > b.name);
+  dirents.sort((a, b) => a.name > b.name)
   for (const [i, dirent] of dirents.entries()) {
-    assert(dirent instanceof fs.Dirent);
-    assert.strictEqual(dirent.name, files[i]);
-    assert.strictEqual(dirent.isFile(), true);
-    assert.strictEqual(dirent.isDirectory(), false);
-    assert.strictEqual(dirent.isSocket(), false);
-    assert.strictEqual(dirent.isBlockDevice(), false);
-    assert.strictEqual(dirent.isCharacterDevice(), false);
-    assert.strictEqual(dirent.isFIFO(), false);
-    assert.strictEqual(dirent.isSymbolicLink(), false);
+    assert(dirent instanceof fs.Dirent)
+    assert.strictEqual(dirent.name, files[i])
+    assert.strictEqual(dirent.isFile(), true)
+    assert.strictEqual(dirent.isDirectory(), false)
+    assert.strictEqual(dirent.isSocket(), false)
+    assert.strictEqual(dirent.isBlockDevice(), false)
+    assert.strictEqual(dirent.isCharacterDevice(), false)
+    assert.strictEqual(dirent.isFIFO(), false)
+    assert.strictEqual(dirent.isSymbolicLink(), false)
   }
 }
 
 // Check the readdir Sync version
-assertDirents(fs.readdirSync(readdirDir, { withFileTypes: true }));
+assertDirents(fs.readdirSync(readdirDir, { withFileTypes: true }))
 
 fs.readdir(__filename, {
-  withFileTypes: true
+  withFileTypes: true,
 }, common.mustCall((err) => {
   assert.throws(
-    () => { throw err; },
+    () => { throw err },
     {
       code: 'ENOTDIR',
       name: 'Error',
-      message: `ENOTDIR: not a directory, scandir '${__filename}'`
-    }
-  );
-}));
+      message: `ENOTDIR: not a directory, scandir '${__filename}'`,
+    },
+  )
+}))
 
 // Check the readdir async version
 fs.readdir(readdirDir, {
-  withFileTypes: true
+  withFileTypes: true,
 }, common.mustSucceed((dirents) => {
-  assertDirents(dirents);
+  assertDirents(dirents)
 }));
 
 (async () => {
   const dirents = await fs.promises.readdir(readdirDir, {
-    withFileTypes: true
-  });
-  assertDirents(dirents);
-})().then(common.mustCall());
+    withFileTypes: true,
+  })
+  assertDirents(dirents)
+})().then(common.mustCall())
 
 /* nodejs implement specific
 // Check for correct types when the binding returns unknowns

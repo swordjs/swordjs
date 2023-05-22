@@ -1,13 +1,13 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import common from '../common';
-import assert from 'assert';
-import fs from 'fs';
+import assert from 'node:assert'
+import fs from 'node:fs'
+import common from '../common'
 
-const encoding = 'foo-8';
-const filename = 'bar.txt';
+const encoding = 'foo-8'
+const filename = 'bar.txt'
 assert.throws(
   () => fs.readFile(filename, { encoding }, common.mustNotCall()),
-  { code: 'ERR_INVALID_ARG_VALUE', name: 'TypeError' }
-);
+  { code: 'ERR_INVALID_ARG_VALUE', name: 'TypeError' },
+)

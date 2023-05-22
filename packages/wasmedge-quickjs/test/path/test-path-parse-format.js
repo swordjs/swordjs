@@ -19,10 +19,10 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import assert from 'assert';
-import path from 'path';
+'use strict'
+import assert from 'node:assert'
+import path from 'node:path'
+import common from '../common'
 
 const winPaths = [
   // [path, root]
@@ -39,21 +39,21 @@ const winPaths = [
   ['C:..', 'C:'],
   ['C:abc', 'C:'],
   ['C:\\', 'C:\\'],
-  ['C:\\abc', 'C:\\' ],
+  ['C:\\abc', 'C:\\'],
   ['', ''],
 
   // unc
   ['\\\\server\\share\\file_path', '\\\\server\\share\\'],
   ['\\\\server two\\shared folder\\file path.zip',
-   '\\\\server two\\shared folder\\'],
+    '\\\\server two\\shared folder\\'],
   ['\\\\teela\\admin$\\system32', '\\\\teela\\admin$\\'],
   ['\\\\?\\UNC\\server\\share', '\\\\?\\UNC\\'],
-];
+]
 
 const winSpecialCaseParseTests = [
   ['t', { base: 't', name: 't', root: '', dir: '', ext: '' }],
   ['/foo/bar', { root: '/', dir: '/foo', base: 'bar', ext: '', name: 'bar' }],
-];
+]
 
 const winSpecialCaseFormatTests = [
   [{ dir: 'some\\dir' }, 'some\\dir\\'],
@@ -63,7 +63,7 @@ const winSpecialCaseFormatTests = [
   [{ dir: 'some\\dir', name: 'index', ext: '.html' }, 'some\\dir\\index.html'],
   [{ root: 'C:\\', name: 'index', ext: '.html' }, 'C:\\index.html'],
   [{}, ''],
-];
+]
 
 const unixPaths = [
   // [path, root]
@@ -87,7 +87,7 @@ const unixPaths = [
   ['/.foo', '/'],
   ['/.foo.bar', '/'],
   ['/foo/bar.baz', '/'],
-];
+]
 
 const unixSpecialCaseFormatTests = [
   [{ dir: 'some/dir' }, 'some/dir/'],
@@ -97,7 +97,7 @@ const unixSpecialCaseFormatTests = [
   [{ dir: 'some/dir', name: 'index', ext: '.html' }, 'some/dir/index.html'],
   [{ root: '/', name: 'index', ext: '.html' }, '/index.html'],
   [{}, ''],
-];
+]
 
 const errors = [
   { method: 'parse', input: [null] },
@@ -109,19 +109,19 @@ const errors = [
   { method: 'format', input: [''] },
   { method: 'format', input: [true] },
   { method: 'format', input: [1] },
-];
+]
 
-//checkParseFormat(path.win32, winPaths);
-checkParseFormat(path.posix, unixPaths);
-//checkSpecialCaseParseFormat(path.win32, winSpecialCaseParseTests);
-//checkErrors(path.win32);
-checkErrors(path.posix);
-//checkFormat(path.win32, winSpecialCaseFormatTests);
-checkFormat(path.posix, unixSpecialCaseFormatTests);
+// checkParseFormat(path.win32, winPaths);
+checkParseFormat(path.posix, unixPaths)
+// checkSpecialCaseParseFormat(path.win32, winSpecialCaseParseTests);
+// checkErrors(path.win32);
+checkErrors(path.posix)
+// checkFormat(path.win32, winSpecialCaseFormatTests);
+checkFormat(path.posix, unixSpecialCaseFormatTests)
 
 // Test removal of trailing path separators
 const trailingTests = [
-  /*[ path.win32.parse,
+  /* [ path.win32.parse,
     [['.\\', { root: '', dir: '', base: '.', ext: '', name: '.' }],
      ['\\\\', { root: '\\', dir: '\\', base: '', ext: '', name: '' }],
      ['\\\\', { root: '\\', dir: '\\', base: '', ext: '', name: '' }],
@@ -135,92 +135,92 @@ const trailingTests = [
         name: 'bar' },
      ],
     ],
-  ],*/
-  [ path.posix.parse,
+  ], */
+  [path.posix.parse,
     [['./', { root: '', dir: '', base: '.', ext: '', name: '.' }],
-     ['//', { root: '/', dir: '/', base: '', ext: '', name: '' }],
-     ['///', { root: '/', dir: '/', base: '', ext: '', name: '' }],
-     ['/foo///', { root: '/', dir: '/', base: 'foo', ext: '', name: 'foo' }],
-     ['/foo///bar.baz',
-      { root: '/', dir: '/foo//', base: 'bar.baz', ext: '.baz', name: 'bar' },
-     ],
+      ['//', { root: '/', dir: '/', base: '', ext: '', name: '' }],
+      ['///', { root: '/', dir: '/', base: '', ext: '', name: '' }],
+      ['/foo///', { root: '/', dir: '/', base: 'foo', ext: '', name: 'foo' }],
+      ['/foo///bar.baz',
+        { root: '/', dir: '/foo//', base: 'bar.baz', ext: '.baz', name: 'bar' },
+      ],
     ],
   ],
-];
-const failures = [];
+]
+const failures = []
 trailingTests.forEach((test) => {
-  const parse = test[0];
-  const os = /*parse === path.win32.parse ? 'win32' : */'posix';
+  const parse = test[0]
+  const os = /* parse === path.win32.parse ? 'win32' : */'posix'
   test[1].forEach((test) => {
-    const actual = parse(test[0]);
-    const expected = test[1];
+    const actual = parse(test[0])
+    const expected = test[1]
     const message = `path.${os}.parse(${JSON.stringify(test[0])})\n  expect=${
-      JSON.stringify(expected)}\n  actual=${JSON.stringify(actual)}`;
-    const actualKeys = Object.keys(actual);
-    const expectedKeys = Object.keys(expected);
-    let failed = (actualKeys.length !== expectedKeys.length);
+      JSON.stringify(expected)}\n  actual=${JSON.stringify(actual)}`
+    const actualKeys = Object.keys(actual)
+    const expectedKeys = Object.keys(expected)
+    let failed = (actualKeys.length !== expectedKeys.length)
     if (!failed) {
       for (let i = 0; i < actualKeys.length; ++i) {
-        const key = actualKeys[i];
+        const key = actualKeys[i]
         if (!expectedKeys.includes(key) || actual[key] !== expected[key]) {
-          failed = true;
-          break;
+          failed = true
+          break
         }
       }
     }
     if (failed)
-      failures.push(`\n${message}`);
-  });
-});
-assert.strictEqual(failures.length, 0, failures.join(''));
+      failures.push(`\n${message}`)
+  })
+})
+assert.strictEqual(failures.length, 0, failures.join(''))
 
 function checkErrors(path) {
   errors.forEach(({ method, input }) => {
     assert.throws(() => {
-      path[method].apply(path, input);
+      path[method].apply(path, input)
     }, {
       code: 'ERR_INVALID_ARG_TYPE',
-      name: 'TypeError'
-    });
-  });
+      name: 'TypeError',
+    })
+  })
 }
 
 function checkParseFormat(path, paths) {
   paths.forEach(([element, root]) => {
-    const output = path.parse(element);
-    assert.strictEqual(typeof output.root, 'string');
-    assert.strictEqual(typeof output.dir, 'string');
-    assert.strictEqual(typeof output.base, 'string');
-    assert.strictEqual(typeof output.ext, 'string');
-    assert.strictEqual(typeof output.name, 'string');
-    assert.strictEqual(path.format(output), element);
-    assert.strictEqual(output.root, root);
-    assert(output.dir.startsWith(output.root));
-    assert.strictEqual(output.dir, output.dir ? path.dirname(element) : '');
-    assert.strictEqual(output.base, path.basename(element));
-    assert.strictEqual(output.ext, path.extname(element));
-  });
+    const output = path.parse(element)
+    assert.strictEqual(typeof output.root, 'string')
+    assert.strictEqual(typeof output.dir, 'string')
+    assert.strictEqual(typeof output.base, 'string')
+    assert.strictEqual(typeof output.ext, 'string')
+    assert.strictEqual(typeof output.name, 'string')
+    assert.strictEqual(path.format(output), element)
+    assert.strictEqual(output.root, root)
+    assert(output.dir.startsWith(output.root))
+    assert.strictEqual(output.dir, output.dir ? path.dirname(element) : '')
+    assert.strictEqual(output.base, path.basename(element))
+    assert.strictEqual(output.ext, path.extname(element))
+  })
 }
 
 function checkSpecialCaseParseFormat(path, testCases) {
   testCases.forEach(([element, expect]) => {
-    assert.deepStrictEqual(path.parse(element), expect);
-  });
+    assert.deepStrictEqual(path.parse(element), expect)
+  })
 }
 
 function checkFormat(path, testCases) {
   testCases.forEach(([element, expect]) => {
-    assert.strictEqual(path.format(element), expect);
+    assert.strictEqual(path.format(element), expect)
   });
 
   [null, undefined, 1, true, false, 'string'].forEach((pathObject) => {
     assert.throws(() => {
-      path.format(pathObject);
+      path.format(pathObject)
     }, {
       code: 'ERR_INVALID_ARG_TYPE',
       name: 'TypeError',
-      message: 'The "pathObject" argument must be of type object.' +
-               common.invalidArgTypeHelper(pathObject)
-    });
-  });
+      message: `The "pathObject" argument must be of type object.${
+               common.invalidArgTypeHelper(pathObject)}`,
+    })
+  })
 }

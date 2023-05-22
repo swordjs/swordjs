@@ -19,67 +19,68 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'use strict';
-import common from '../common';
-import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
-import process from 'process';
-import tmpdir from '../common/tmpdir';
-tmpdir.refresh();
+'use strict'
+import assert from 'node:assert'
+import fs from 'node:fs'
+import path from 'node:path'
+import process from 'node:process'
+import common from '../common'
+import tmpdir from '../common/tmpdir'
 
-let dirc = 0;
+tmpdir.refresh()
+
+let dirc = 0
 function nextdir() {
-  return `test${++dirc}`;
+  return `test${++dirc}`
 }
 
 // fs.mkdir creates directory using assigned path
 {
-  const pathname = path.join(tmpdir.path, nextdir());
+  const pathname = path.join(tmpdir.path, nextdir())
 
-  fs.mkdir(pathname, common.mustCall(function(err) {
-    assert.strictEqual(err, null);
-    assert.strictEqual(fs.existsSync(pathname), true);
-  }));
+  fs.mkdir(pathname, common.mustCall((err) => {
+    assert.strictEqual(err, null)
+    assert.strictEqual(fs.existsSync(pathname), true)
+  }))
 }
 
 // fs.mkdir creates directory with assigned mode value
 {
-  const pathname = path.join(tmpdir.path, nextdir());
+  const pathname = path.join(tmpdir.path, nextdir())
 
-  fs.mkdir(pathname, 0o777, common.mustCall(function(err) {
-    assert.strictEqual(err, null);
-    assert.strictEqual(fs.existsSync(pathname), true);
-  }));
+  fs.mkdir(pathname, 0o777, common.mustCall((err) => {
+    assert.strictEqual(err, null)
+    assert.strictEqual(fs.existsSync(pathname), true)
+  }))
 }
 
 // fs.mkdir creates directory with mode passed as an options object
 {
-  const pathname = path.join(tmpdir.path, nextdir());
+  const pathname = path.join(tmpdir.path, nextdir())
 
-  fs.mkdir(pathname, common.mustNotMutateObjectDeep({ mode: 0o777 }), common.mustCall(function(err) {
-    assert.strictEqual(err, null);
-    assert.strictEqual(fs.existsSync(pathname), true);
-  }));
+  fs.mkdir(pathname, common.mustNotMutateObjectDeep({ mode: 0o777 }), common.mustCall((err) => {
+    assert.strictEqual(err, null)
+    assert.strictEqual(fs.existsSync(pathname), true)
+  }))
 }
 
 // fs.mkdirSync creates directory with mode passed as an options object
 {
-  const pathname = path.join(tmpdir.path, nextdir());
+  const pathname = path.join(tmpdir.path, nextdir())
 
-  fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ mode: 0o777 }));
+  fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ mode: 0o777 }))
 
-  assert.strictEqual(fs.existsSync(pathname), true);
+  assert.strictEqual(fs.existsSync(pathname), true)
 }
 
 // mkdirSync successfully creates directory from given path
 {
-  const pathname = path.join(tmpdir.path, nextdir());
+  const pathname = path.join(tmpdir.path, nextdir())
 
-  fs.mkdirSync(pathname);
+  fs.mkdirSync(pathname)
 
-  const exists = fs.existsSync(pathname);
-  assert.strictEqual(exists, true);
+  const exists = fs.existsSync(pathname)
+  assert.strictEqual(exists, true)
 }
 
 // mkdirSync and mkdir require path to be a string, buffer or url.
@@ -89,152 +90,152 @@ function nextdir() {
     () => fs.mkdir(i, common.mustNotCall()),
     {
       code: 'ERR_INVALID_ARG_TYPE',
-      name: 'TypeError'
-    }
-  );
+      name: 'TypeError',
+    },
+  )
   assert.throws(
     () => fs.mkdirSync(i),
     {
       code: 'ERR_INVALID_ARG_TYPE',
-      name: 'TypeError'
-    }
-  );
-});
+      name: 'TypeError',
+    },
+  )
+})
 
 // mkdirpSync when both top-level, and sub-folders do not exist.
 {
-  const pathname = path.join(tmpdir.path, nextdir(), nextdir());
+  const pathname = path.join(tmpdir.path, nextdir(), nextdir())
 
-  fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ recursive: true }));
+  fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ recursive: true }))
 
-  const exists = fs.existsSync(pathname);
-  assert.strictEqual(exists, true);
-  assert.strictEqual(fs.statSync(pathname).isDirectory(), true);
+  const exists = fs.existsSync(pathname)
+  assert.strictEqual(exists, true)
+  assert.strictEqual(fs.statSync(pathname).isDirectory(), true)
 }
 
 // mkdirpSync when folder already exists.
 {
-  const pathname = path.join(tmpdir.path, nextdir(), nextdir());
+  const pathname = path.join(tmpdir.path, nextdir(), nextdir())
 
-  fs.mkdirSync(pathname, { recursive: true });
+  fs.mkdirSync(pathname, { recursive: true })
   // Should not cause an error.
-  fs.mkdirSync(pathname, { recursive: true });
+  fs.mkdirSync(pathname, { recursive: true })
 
-  const exists = fs.existsSync(pathname);
-  assert.strictEqual(exists, true);
-  assert.strictEqual(fs.statSync(pathname).isDirectory(), true);
+  const exists = fs.existsSync(pathname)
+  assert.strictEqual(exists, true)
+  assert.strictEqual(fs.statSync(pathname).isDirectory(), true)
 }
 
 // mkdirpSync ../
 {
-  const pathname = `${tmpdir.path}/${nextdir()}/../${nextdir()}/${nextdir()}`;
-  fs.mkdirSync(pathname, { recursive: true });
-  const exists = fs.existsSync(pathname);
-  assert.strictEqual(exists, true);
-  assert.strictEqual(fs.statSync(pathname).isDirectory(), true);
+  const pathname = `${tmpdir.path}/${nextdir()}/../${nextdir()}/${nextdir()}`
+  fs.mkdirSync(pathname, { recursive: true })
+  const exists = fs.existsSync(pathname)
+  assert.strictEqual(exists, true)
+  assert.strictEqual(fs.statSync(pathname).isDirectory(), true)
 }
 
 // mkdirpSync when path is a file.
 {
-  const pathname = path.join(tmpdir.path, nextdir(), nextdir());
+  const pathname = path.join(tmpdir.path, nextdir(), nextdir())
 
-  fs.mkdirSync(path.dirname(pathname));
-  fs.writeFileSync(pathname, '', 'utf8');
+  fs.mkdirSync(path.dirname(pathname))
+  fs.writeFileSync(pathname, '', 'utf8')
 
   assert.throws(
-    () => { fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ recursive: true })); },
+    () => { fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ recursive: true })) },
     {
       code: 'EEXIST',
       message: /EEXIST: .*mkdir/,
       name: 'Error',
       syscall: 'mkdir',
-    }
-  );
+    },
+  )
 }
 
 // mkdirpSync when part of the path is a file.
 {
-  const filename = path.join(tmpdir.path, nextdir(), nextdir());
-  const pathname = path.join(filename, nextdir(), nextdir());
+  const filename = path.join(tmpdir.path, nextdir(), nextdir())
+  const pathname = path.join(filename, nextdir(), nextdir())
 
-  fs.mkdirSync(path.dirname(filename));
-  fs.writeFileSync(filename, '', 'utf8');
+  fs.mkdirSync(path.dirname(filename))
+  fs.writeFileSync(filename, '', 'utf8')
 
   assert.throws(
-    () => { fs.mkdirSync(pathname, { recursive: true }); },
+    () => { fs.mkdirSync(pathname, { recursive: true }) },
     {
       code: 'ENOTDIR',
       message: /ENOTDIR: .*mkdir/,
       name: 'Error',
       syscall: 'mkdir',
-      path: pathname // See: https://github.com/nodejs/node/issues/28015
-    }
-  );
+      path: pathname, // See: https://github.com/nodejs/node/issues/28015
+    },
+  )
 }
 
 // `mkdirp` when folder does not yet exist.
 {
-  const pathname = path.join(tmpdir.path, nextdir(), nextdir());
+  const pathname = path.join(tmpdir.path, nextdir(), nextdir())
 
-  fs.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }), common.mustCall(function(err) {
-    assert.strictEqual(err, null);
-    assert.strictEqual(fs.existsSync(pathname), true);
-    assert.strictEqual(fs.statSync(pathname).isDirectory(), true);
-  }));
+  fs.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }), common.mustCall((err) => {
+    assert.strictEqual(err, null)
+    assert.strictEqual(fs.existsSync(pathname), true)
+    assert.strictEqual(fs.statSync(pathname).isDirectory(), true)
+  }))
 }
 
 // `mkdirp` when path is a file.
 {
-  const pathname = path.join(tmpdir.path, nextdir(), nextdir());
+  const pathname = path.join(tmpdir.path, nextdir(), nextdir())
 
-  fs.mkdirSync(path.dirname(pathname));
-  fs.writeFileSync(pathname, '', 'utf8');
+  fs.mkdirSync(path.dirname(pathname))
+  fs.writeFileSync(pathname, '', 'utf8')
   fs.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }), common.mustCall((err) => {
-    assert.strictEqual(err.code, 'EEXIST');
-    assert.strictEqual(err.syscall, 'mkdir');
-    assert.strictEqual(fs.statSync(pathname).isDirectory(), false);
-  }));
+    assert.strictEqual(err.code, 'EEXIST')
+    assert.strictEqual(err.syscall, 'mkdir')
+    assert.strictEqual(fs.statSync(pathname).isDirectory(), false)
+  }))
 }
 
 // `mkdirp` when part of the path is a file.
 {
-  const filename = path.join(tmpdir.path, nextdir(), nextdir());
-  const pathname = path.join(filename, nextdir(), nextdir());
+  const filename = path.join(tmpdir.path, nextdir(), nextdir())
+  const pathname = path.join(filename, nextdir(), nextdir())
 
-  fs.mkdirSync(path.dirname(filename));
-  fs.writeFileSync(filename, '', 'utf8');
+  fs.mkdirSync(path.dirname(filename))
+  fs.writeFileSync(filename, '', 'utf8')
   fs.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }), common.mustCall((err) => {
-    assert.strictEqual(err.code, 'ENOTDIR');
-    assert.strictEqual(err.syscall, 'mkdir');
-    assert.strictEqual(fs.existsSync(pathname), false);
+    assert.strictEqual(err.code, 'ENOTDIR')
+    assert.strictEqual(err.syscall, 'mkdir')
+    assert.strictEqual(fs.existsSync(pathname), false)
     // See: https://github.com/nodejs/node/issues/28015
     // The path field varies slightly in Windows errors, vs., other platforms
     // see: https://github.com/libuv/libuv/issues/2661, for this reason we
     // use startsWith() rather than comparing to the full "pathname".
-    assert(err.path.startsWith(filename));
-  }));
+    assert(err.path.startsWith(filename))
+  }))
 }
 
 // mkdirpSync dirname loop
 // XXX: windows and smartos have issues removing a directory that you're in.
 if (common.isMainThread && (common.isLinux || common.isOSX)) {
-  const pathname = path.join(tmpdir.path, nextdir());
-  fs.mkdirSync(pathname);
-  process.chdir(pathname);
-  fs.rmdirSync(pathname);
+  const pathname = path.join(tmpdir.path, nextdir())
+  fs.mkdirSync(pathname)
+  process.chdir(pathname)
+  fs.rmdirSync(pathname)
   assert.throws(
-    () => { fs.mkdirSync('X', common.mustNotMutateObjectDeep({ recursive: true })); },
+    () => { fs.mkdirSync('X', common.mustNotMutateObjectDeep({ recursive: true })) },
     {
       code: 'ENOENT',
       message: /ENOENT: .*mkdir/,
       name: 'Error',
       syscall: 'mkdir',
-    }
-  );
+    },
+  )
   fs.mkdir('X', common.mustNotMutateObjectDeep({ recursive: true }), (err) => {
-    assert.strictEqual(err.code, 'ENOENT');
-    assert.strictEqual(err.syscall, 'mkdir');
-  });
+    assert.strictEqual(err.code, 'ENOENT')
+    assert.strictEqual(err.syscall, 'mkdir')
+  })
 }
 
 // mkdirSync and mkdir require options.recursive to be a boolean.
@@ -242,122 +243,122 @@ if (common.isMainThread && (common.isLinux || common.isOSX)) {
 {
   const pathname = path.join(tmpdir.path, nextdir());
   ['', 1, {}, [], null, Symbol('test'), () => {}].forEach((recursive) => {
-    const received = common.invalidArgTypeHelper(recursive);
+    const received = common.invalidArgTypeHelper(recursive)
     assert.throws(
       () => fs.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive }), common.mustNotCall()),
       {
         code: 'ERR_INVALID_ARG_TYPE',
         name: 'TypeError',
-        message: 'The "options.recursive" property must be of type boolean.' +
-          received
-      }
-    );
+        message: `The "options.recursive" property must be of type boolean.${
+          received}`,
+      },
+    )
     assert.throws(
       () => fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ recursive })),
       {
         code: 'ERR_INVALID_ARG_TYPE',
         name: 'TypeError',
-        message: 'The "options.recursive" property must be of type boolean.' +
-          received
-      }
-    );
-  });
+        message: `The "options.recursive" property must be of type boolean.${
+          received}`,
+      },
+    )
+  })
 }
 
 // `mkdirp` returns first folder created, when all folders are new.
 {
-  const dir1 = nextdir();
-  const dir2 = nextdir();
-  const firstPathCreated = path.join(tmpdir.path, dir1);
-  const pathname = path.join(tmpdir.path, dir1, dir2);
+  const dir1 = nextdir()
+  const dir2 = nextdir()
+  const firstPathCreated = path.join(tmpdir.path, dir1)
+  const pathname = path.join(tmpdir.path, dir1, dir2)
 
-  fs.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }), common.mustCall(function(err, path) {
-    assert.strictEqual(err, null);
-    assert.strictEqual(fs.existsSync(pathname), true);
-    assert.strictEqual(fs.statSync(pathname).isDirectory(), true);
-    assert.strictEqual(path, firstPathCreated);
-  }));
+  fs.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }), common.mustCall((err, path) => {
+    assert.strictEqual(err, null)
+    assert.strictEqual(fs.existsSync(pathname), true)
+    assert.strictEqual(fs.statSync(pathname).isDirectory(), true)
+    assert.strictEqual(path, firstPathCreated)
+  }))
 }
 
 // `mkdirp` returns first folder created, when last folder is new.
 {
-  const dir1 = nextdir();
-  const dir2 = nextdir();
-  const pathname = path.join(tmpdir.path, dir1, dir2);
-  fs.mkdirSync(path.join(tmpdir.path, dir1));
-  fs.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }), common.mustCall(function(err, path) {
-    assert.strictEqual(err, null);
-    assert.strictEqual(fs.existsSync(pathname), true);
-    assert.strictEqual(fs.statSync(pathname).isDirectory(), true);
-    assert.strictEqual(path, pathname);
-  }));
+  const dir1 = nextdir()
+  const dir2 = nextdir()
+  const pathname = path.join(tmpdir.path, dir1, dir2)
+  fs.mkdirSync(path.join(tmpdir.path, dir1))
+  fs.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }), common.mustCall((err, path) => {
+    assert.strictEqual(err, null)
+    assert.strictEqual(fs.existsSync(pathname), true)
+    assert.strictEqual(fs.statSync(pathname).isDirectory(), true)
+    assert.strictEqual(path, pathname)
+  }))
 }
 
 // `mkdirp` returns undefined, when no new folders are created.
 {
-  const dir1 = nextdir();
-  const dir2 = nextdir();
-  const pathname = path.join(tmpdir.path, dir1, dir2);
-  fs.mkdirSync(path.join(tmpdir.path, dir1, dir2), common.mustNotMutateObjectDeep({ recursive: true }));
-  fs.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }), common.mustCall(function(err, path) {
-    assert.strictEqual(err, null);
-    assert.strictEqual(fs.existsSync(pathname), true);
-    assert.strictEqual(fs.statSync(pathname).isDirectory(), true);
-    assert.strictEqual(path, undefined);
-  }));
+  const dir1 = nextdir()
+  const dir2 = nextdir()
+  const pathname = path.join(tmpdir.path, dir1, dir2)
+  fs.mkdirSync(path.join(tmpdir.path, dir1, dir2), common.mustNotMutateObjectDeep({ recursive: true }))
+  fs.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }), common.mustCall((err, path) => {
+    assert.strictEqual(err, null)
+    assert.strictEqual(fs.existsSync(pathname), true)
+    assert.strictEqual(fs.statSync(pathname).isDirectory(), true)
+    assert.strictEqual(path, undefined)
+  }))
 }
 
 // `mkdirp.sync` returns first folder created, when all folders are new.
 {
-  const dir1 = nextdir();
-  const dir2 = nextdir();
-  const firstPathCreated = path.join(tmpdir.path, dir1);
-  const pathname = path.join(tmpdir.path, dir1, dir2);
-  const p = fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ recursive: true }));
-  assert.strictEqual(fs.existsSync(pathname), true);
-  assert.strictEqual(fs.statSync(pathname).isDirectory(), true);
-  assert.strictEqual(p, firstPathCreated);
+  const dir1 = nextdir()
+  const dir2 = nextdir()
+  const firstPathCreated = path.join(tmpdir.path, dir1)
+  const pathname = path.join(tmpdir.path, dir1, dir2)
+  const p = fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ recursive: true }))
+  assert.strictEqual(fs.existsSync(pathname), true)
+  assert.strictEqual(fs.statSync(pathname).isDirectory(), true)
+  assert.strictEqual(p, firstPathCreated)
 }
 
 // `mkdirp.sync` returns first folder created, when last folder is new.
 {
-  const dir1 = nextdir();
-  const dir2 = nextdir();
-  const pathname = path.join(tmpdir.path, dir1, dir2);
-  fs.mkdirSync(path.join(tmpdir.path, dir1), common.mustNotMutateObjectDeep({ recursive: true }));
-  const p = fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ recursive: true }));
-  assert.strictEqual(fs.existsSync(pathname), true);
-  assert.strictEqual(fs.statSync(pathname).isDirectory(), true);
-  assert.strictEqual(p, pathname);
+  const dir1 = nextdir()
+  const dir2 = nextdir()
+  const pathname = path.join(tmpdir.path, dir1, dir2)
+  fs.mkdirSync(path.join(tmpdir.path, dir1), common.mustNotMutateObjectDeep({ recursive: true }))
+  const p = fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ recursive: true }))
+  assert.strictEqual(fs.existsSync(pathname), true)
+  assert.strictEqual(fs.statSync(pathname).isDirectory(), true)
+  assert.strictEqual(p, pathname)
 }
 
 // `mkdirp.sync` returns undefined, when no new folders are created.
 {
-  const dir1 = nextdir();
-  const dir2 = nextdir();
-  const pathname = path.join(tmpdir.path, dir1, dir2);
-  fs.mkdirSync(path.join(tmpdir.path, dir1, dir2), common.mustNotMutateObjectDeep({ recursive: true }));
-  const p = fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ recursive: true }));
-  assert.strictEqual(fs.existsSync(pathname), true);
-  assert.strictEqual(fs.statSync(pathname).isDirectory(), true);
-  assert.strictEqual(p, undefined);
+  const dir1 = nextdir()
+  const dir2 = nextdir()
+  const pathname = path.join(tmpdir.path, dir1, dir2)
+  fs.mkdirSync(path.join(tmpdir.path, dir1, dir2), common.mustNotMutateObjectDeep({ recursive: true }))
+  const p = fs.mkdirSync(pathname, common.mustNotMutateObjectDeep({ recursive: true }))
+  assert.strictEqual(fs.existsSync(pathname), true)
+  assert.strictEqual(fs.statSync(pathname).isDirectory(), true)
+  assert.strictEqual(p, undefined)
 }
 
 // `mkdirp.promises` returns first folder created, when all folders are new.
 {
-  const dir1 = nextdir();
-  const dir2 = nextdir();
-  const firstPathCreated = path.join(tmpdir.path, dir1);
-  const pathname = path.join(tmpdir.path, dir1, dir2);
+  const dir1 = nextdir()
+  const dir2 = nextdir()
+  const firstPathCreated = path.join(tmpdir.path, dir1)
+  const pathname = path.join(tmpdir.path, dir1, dir2)
   async function testCase() {
-    const p = await fs.promises.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }));
-    assert.strictEqual(fs.existsSync(pathname), true);
-    assert.strictEqual(fs.statSync(pathname).isDirectory(), true);
-    assert.strictEqual(p, firstPathCreated);
+    const p = await fs.promises.mkdir(pathname, common.mustNotMutateObjectDeep({ recursive: true }))
+    assert.strictEqual(fs.existsSync(pathname), true)
+    assert.strictEqual(fs.statSync(pathname).isDirectory(), true)
+    assert.strictEqual(p, firstPathCreated)
   }
-  testCase();
+  testCase()
 }
 
 // Keep the event loop alive so the async mkdir() requests
 // have a chance to run (since they don't ref the event loop).
-process.nextTick(() => {});
+process.nextTick(() => {})

@@ -1,65 +1,66 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import common from '../common';
-import tmpdir from '../common/tmpdir';
-import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
+import assert from 'node:assert'
+import fs from 'node:fs'
+import path from 'node:path'
+import tmpdir from '../common/tmpdir'
+import common from '../common'
+
 const { promises } = fs;
 
 // Validate the path argument.
 [false, 1, {}, [], null, undefined].forEach((i) => {
-  const err = { name: 'TypeError', code: 'ERR_INVALID_ARG_TYPE' };
+  const err = { name: 'TypeError', code: 'ERR_INVALID_ARG_TYPE' }
 
-  assert.throws(() => fs.lchown(i, 1, 1, common.mustNotCall()), err);
-  assert.throws(() => fs.lchownSync(i, 1, 1), err);
+  assert.throws(() => fs.lchown(i, 1, 1, common.mustNotCall()), err)
+  assert.throws(() => fs.lchownSync(i, 1, 1), err)
   promises.lchown(false, 1, 1)
     .then(common.mustNotCall())
-    .catch(common.expectsError(err));
+    .catch(common.expectsError(err))
 });
 
 // Validate the uid and gid arguments.
 [false, 'test', {}, [], null, undefined].forEach((i) => {
-  const err = { name: 'TypeError', code: 'ERR_INVALID_ARG_TYPE' };
+  const err = { name: 'TypeError', code: 'ERR_INVALID_ARG_TYPE' }
 
   assert.throws(
     () => fs.lchown('not_a_file_that_exists', i, 1, common.mustNotCall()),
-    err
-  );
+    err,
+  )
   assert.throws(
     () => fs.lchown('not_a_file_that_exists', 1, i, common.mustNotCall()),
-    err
-  );
-  assert.throws(() => fs.lchownSync('not_a_file_that_exists', i, 1), err);
-  assert.throws(() => fs.lchownSync('not_a_file_that_exists', 1, i), err);
+    err,
+  )
+  assert.throws(() => fs.lchownSync('not_a_file_that_exists', i, 1), err)
+  assert.throws(() => fs.lchownSync('not_a_file_that_exists', 1, i), err)
 
   promises.lchown('not_a_file_that_exists', i, 1)
     .then(common.mustNotCall())
-    .catch(common.expectsError(err));
+    .catch(common.expectsError(err))
 
   promises.lchown('not_a_file_that_exists', 1, i)
     .then(common.mustNotCall())
-    .catch(common.expectsError(err));
+    .catch(common.expectsError(err))
 });
 
 // Validate the callback argument.
 [false, 1, 'test', {}, [], null, undefined].forEach((i) => {
   assert.throws(() => fs.lchown('not_a_file_that_exists', 1, 1, i), {
     name: 'TypeError',
-    code: 'ERR_INVALID_ARG_TYPE'
-  });
-});
+    code: 'ERR_INVALID_ARG_TYPE',
+  })
+})
 
 if (!common.isWindows) {
-  const testFile = path.join(tmpdir.path, path.basename(__filename));
-  const uid = process.geteuid();
-  const gid = process.getegid();
+  const testFile = path.join(tmpdir.path, path.basename(__filename))
+  const uid = process.geteuid()
+  const gid = process.getegid()
 
-  tmpdir.refresh();
-  fs.copyFileSync(__filename, testFile);
-  fs.lchownSync(testFile, uid, gid);
+  tmpdir.refresh()
+  fs.copyFileSync(__filename, testFile)
+  fs.lchownSync(testFile, uid, gid)
   fs.lchown(testFile, uid, gid, common.mustSucceed(async (err) => {
-    await promises.lchown(testFile, uid, gid);
-  }));
+    await promises.lchown(testFile, uid, gid)
+  }))
 }

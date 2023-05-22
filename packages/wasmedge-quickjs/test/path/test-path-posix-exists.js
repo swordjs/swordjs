@@ -1,6 +1,6 @@
 // Copyright Joyent and Node contributors. All rights reserved. MIT license.
-'use strict';
+'use strict'
 
-import assert from 'assert';
+import assert from 'node:assert'
 
-assert.strictEqual(require('path/posix'), require('path').posix);
+assert.strictEqual(require('node:path/posix'), require('node:path').posix)
