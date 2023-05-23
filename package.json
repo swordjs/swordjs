@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "eslint:format": "eslint --fix --ext .js,.jsx .",
+    "eslint:format": "eslint --fix --ext .js,.ts .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
