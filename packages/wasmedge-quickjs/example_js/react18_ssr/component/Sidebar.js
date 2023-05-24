@@ -6,7 +6,6 @@
  *
  */
 import React from 'react'
-
 export default function Sidebar() {
   return (
     <>
@@ -23,5 +22,5 @@ export default function Sidebar() {
         <li>September 2020</li>
       </ul>
     </>
-  )
+  );
 }

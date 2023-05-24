@@ -6,7 +6,7 @@
  *
  */
 import React from 'react'
-import { hydrateRoot } from 'react-dom'
-import App from './App'
+import {hydrateRoot} from 'react-dom';
+import App from './App';
 
-hydrateRoot(document, <App assets={window.assetManifest} />)
+hydrateRoot(document, <App assets={window.assetManifest} />);

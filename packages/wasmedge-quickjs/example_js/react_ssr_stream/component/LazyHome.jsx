@@ -1,21 +1,21 @@
-import React, { Suspense } from 'react'
-import * as LazyPage from './LazyPage.jsx'
+import React, { Suspense } from 'react';
+import * as LazyPage from './LazyPage.jsx';
 
 async function sleep(ms) {
-  return new Promise((r, _) => {
-    setTimeout(() => r(), ms)
-  })
+    return new Promise((r, _) => {
+        setTimeout(() => r(), ms)
+    });
 }
 
 async function loadLazyPage() {
-  await sleep(2000)
-  return LazyPage
+    await sleep(2000);
+    return LazyPage
 }
 
 class LazyHome extends React.Component {
-  render() {
-    const LazyPage1 = React.lazy(() => loadLazyPage())
-    return (
+    render() {
+        let LazyPage1 = React.lazy(() => loadLazyPage());
+        return (
             <html lang="en">
                 <head>
                     <meta charSet="utf-8" />
@@ -30,8 +30,8 @@ class LazyHome extends React.Component {
                     </div>
                 </body>
             </html>
-    )
-  }
+        );
+    }
 }
 
-export default LazyHome
+export default LazyHome;

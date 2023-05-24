@@ -1,4 +1,4 @@
-import { createServer } from 'http';
+import { createServer, request, fetch } from 'http';
 
 createServer((req, resp) => {
   print("server: req.httpVersion=", req.httpVersion);
@@ -10,8 +10,9 @@ createServer((req, resp) => {
     print("server: req.body=", body);
     print()
 
+    resp.write('echo:')
     resp.end(body)
   })
-}).listen(8080, () => {
-  print('listen 8080 ...\n');
+}).listen(8001, () => {
+  print('listen 8001 ...\n');
 })

@@ -1,15 +1,15 @@
-import React from 'react'
+import React from 'react';
 
 class LazyPage extends React.Component {
-  render() {
-    return (
+    render() {
+        return (
             <div>
                 <div>
                     This is lazy page
                 </div>
             </div>
-    )
-  }
+        );
+    }
 }
 
-export default LazyPage
+export default LazyPage;

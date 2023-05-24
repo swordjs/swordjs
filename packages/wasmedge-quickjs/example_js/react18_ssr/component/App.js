@@ -6,16 +6,16 @@
  *
  */
 
-import React, { Suspense, lazy } from 'react'
-import { ErrorBoundary } from 'react-error-boundary'
-import Html from './Html.js'
-import Spinner from './Spinner.js'
-import Layout from './Layout.js'
-import NavBar from './NavBar.js'
+import React,{ Suspense, lazy } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import Html from "./Html.js";
+import Spinner from "./Spinner.js";
+import Layout from "./Layout.js";
+import NavBar from "./NavBar.js";
 
-const Comments = lazy(() => import('./Comments.js' /* webpackPrefetch: true */))
-const Sidebar = lazy(() => import('./Sidebar.js' /* webpackPrefetch: true */))
-const Post = lazy(() => import('./Post.js' /* webpackPrefetch: true */))
+const Comments = lazy(() => import("./Comments.js" /* webpackPrefetch: true */));
+const Sidebar = lazy(() => import("./Sidebar.js" /* webpackPrefetch: true */));
+const Post = lazy(() => import("./Post.js" /* webpackPrefetch: true */));
 
 export default function App({ assets }) {
   return (
@@ -26,7 +26,7 @@ export default function App({ assets }) {
         </ErrorBoundary>
       </Suspense>
     </Html>
-  )
+  );
 }
 
 function Content() {
@@ -51,14 +51,14 @@ function Content() {
         <h2>Thanks for reading!</h2>
       </article>
     </Layout>
-  )
+  );
 }
 
 function Error({ error }) {
   return (
     <div>
       <h1>Application Error</h1>
-      <pre style={{ whiteSpace: 'pre-wrap' }}>{error.stack}</pre>
+      <pre style={{ whiteSpace: "pre-wrap" }}>{error.stack}</pre>
     </div>
-  )
+  );
 }

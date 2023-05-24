@@ -6,7 +6,6 @@
  *
  */
 import React from 'react'
-
 export default function Post() {
   return (
     <>
@@ -25,5 +24,5 @@ export default function Post() {
         but HTML for it is still included in the server output.
       </p>
     </>
-  )
+  );
 }
