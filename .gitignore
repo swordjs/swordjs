@@ -11,3 +11,4 @@ lib-cov
 logs
 node_modules
 temp
+wasmedge_quickjs.wasm
