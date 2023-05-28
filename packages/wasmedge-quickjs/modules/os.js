@@ -1,118 +1,117 @@
-import process from 'node:process'
-import { Buffer } from 'node:buffer'
-import { text_encode } from '_encoding'
-import { _memorySize } from '_node:os'
+import process from 'process';
+import { Buffer } from 'buffer';
+import { text_encode } from '_encoding';
+import { _memorySize } from '_node:os';
 
-export * from 'qjs:os'
+export * from 'qjs:os';
 
 function unimplemented(name) {
-  throw new Error(`Node.js os ${name} is not supported`)
+  throw new Error('Node.js os ' + name + ' is not supported');
 }
 
-const EOL = '\n'
+var EOL = '\n';
 
 function arch() {
-  return process.arch
+  return process.arch;
 }
 
-const constants = []
+var constants = [];
 
 function cpus() {
-  unimplemented('cpus')
+  unimplemented('cpus');
 }
 
-const devNull = '/dev/null'
+var devNull = '/dev/null';
 
 function endianness() {
-  return 'LE'
+  return 'LE';
 }
 
 function freemem() {
-  // memory.size instruction will return the current
-  // memory size in units of pages.
+  // memory.size instruction will return the current 
+  // memory size in units of pages. 
   // A page size is 65536 bytes.
-  return totalmem() - _memorySize() * 65536
+  return totalmem() - _memorySize() * 65536;
 }
 
 function getPriority(pid) {
-  if (pid === undefined)
-    pid = 0
-
-  return 0
+  if (pid === undefined) {
+    pid = 0;
+  }
+  return 0;
 }
 
 function homedir() {
-  return process.env.HOME || '.'
+  return process.env['HOME'] || '.';
 }
 
 function hostname() {
-  return process.title
+  return process.title;
 }
 
 function loadavg() {
-  return [0, 0, 0]
+  return [0, 0, 0];
 }
 
 function networkInterfaces() {
-  return []
+  return [];
 }
 
 function platform() {
-  return process.platform
+  return process.platform;
 }
 
 function release() {
-  return process.version
+  return process.version;
 }
 
 function setPriority(pid, priority) {
   if (priority === undefined) {
-    priority = pid
-    pid = 0
+    priority = pid;
+    pid = 0;
   }
 }
 
 function tmpdir() {
-  let path = process.env.TMPDIR || process.env.TMP || process.env.TEMP || '/tmp'
-  if (path.length > 1 && path.endsWith('/'))
-    path = path.slice(0, -1)
-
-  return path
+  let path = process.env['TMPDIR'] || process.env['TMP'] || process.env['TEMP'] || '/tmp';
+  if (path.length > 1 && path.endsWith('/')) {
+    path = path.slice(0, -1);
+  }
+  return path;
 }
 
 function totalmem() {
-  return 2 ** 32
+  return 2 ** 32;
 }
 
 function type() {
-  return 'wasmedge'
+  return 'wasmedge';
 }
 
 function uptime() {
-  return process.uptime()
+  return process.uptime();
 }
 
 function userInfo(options) {
-  const encoding = (options && options.encoding) || 'utf8'
-  let username = 'wasmedge'
-  let _homedir = homedir()
+  const encoding = (options && options.encoding) || 'utf8';
+  let username = 'wasmedge';
+  let _homedir = homedir();
   if (encoding === 'Buffer' || encoding === 'buffer') {
-    username = Buffer.from(username, 'utf8')
-    _homedir = Buffer.from(_homedir, 'utf8')
-  }
-  else if (encoding !== 'utf-8' && encoding !== 'utf8') {
-    const exist = [
+    username = Buffer.from(username, 'utf8');
+    _homedir = Buffer.from(_homedir, 'utf8');
+  } else if (encoding !== 'utf-8' && encoding !== 'utf8') {
+    let exist = [
       'utf8', 'utf-8', 'gbk', 'gb18030', 'hz-gb-2312', 'big5', 'euc-jp', 'iso-2022-jp',
       'utf-16be', 'utf-16le', 'x-user-defined', 'ibm866',
       'iso-8859-2', 'iso-8859-3', 'iso-8859-4', 'iso-8859-5', 'iso-8859-6', 'iso-8859-7', 'iso-8859-8',
       'iso-8859-8i', 'iso-8859-10', 'iso-8859-13', 'iso-8859-14', 'iso-8859-15', 'iso-8859-16',
       'windows-874', 'windows-1250', 'windows-1251', 'windows-1252', 'windows-1253', 'windows-1254',
-      'windows-1255', 'windows-1256', 'windows-1257', 'windows-1258', '',
-    ].indexOf(encoding)
+      'windows-1255', 'windows-1256', 'windows-1257', 'windows-1258', ''
+    ].indexOf(encoding);
     if (exist >= 0) {
-      const decoder = new TextDecoder()
-      username = text_encode(encoding, decoder.decode(username))
-      _homedir = text_encode(encoding, decoder.decode(_homedir))
+      const decoder = new TextDecoder();
+      username = text_encode(encoding, decoder.decode(username));
+      _homedir = text_encode(encoding, decoder.decode(_homedir));
     }
   }
   return {
@@ -120,12 +119,12 @@ function userInfo(options) {
     pid: -1,
     username,
     homedir: _homedir,
-    shell: null,
+    shell: null
   }
 }
 
 function version() {
-  return process.version
+  return process.version;
 }
 
 export {
@@ -149,5 +148,5 @@ export {
   type,
   uptime,
   userInfo,
-  version,
+  version
 }
